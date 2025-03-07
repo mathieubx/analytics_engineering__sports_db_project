@@ -1,0 +1,31 @@
+[0m08:50:05.467803 [debug] [MainThread]: Sending event: {'category': 'dbt', 'action': 'invocation', 'label': 'start', 'context': [<snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x0000027AF53E9550>, <snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x0000027AF34B1090>, <snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x0000027AF710FED0>]}
+
+
+============================== 08:50:05.486730 | 91e022a1-a2aa-4b50-b45e-ae8c40845eb7 ==============================
+[0m08:50:05.486730 [info ] [MainThread]: Running with dbt=1.9.2
+[0m08:50:05.487797 [debug] [MainThread]: running dbt with arguments {'printer_width': '80', 'indirect_selection': 'eager', 'log_cache_events': 'False', 'write_json': 'True', 'partial_parse': 'True', 'cache_selected_only': 'False', 'warn_error': 'None', 'fail_fast': 'False', 'version_check': 'True', 'log_path': 'logs', 'debug': 'False', 'profiles_dir': 'C:\\Users\\mbmbm\\.dbt', 'use_colors': 'True', 'use_experimental_parser': 'False', 'empty': 'None', 'quiet': 'False', 'no_print': 'None', 'log_format': 'default', 'introspect': 'True', 'static_parser': 'True', 'invocation_command': 'dbt init', 'target_path': 'None', 'warn_error_options': 'WarnErrorOptions(include=[], exclude=[])', 'send_anonymous_usage_stats': 'True'}
+[0m08:50:05.744531 [warn ] [MainThread]: [ConfigFolderDirectory]: Unable to parse logging event dictionary. Failed to parse dir field: expected string or bytes-like object, got 'WindowsPath'.. Dictionary: {'dir': WindowsPath('C:/Users/mbmbm/.dbt')}
+[0m08:50:05.745590 [info ] [MainThread]: Creating dbt configuration folder at 
+[0m08:50:38.594670 [debug] [MainThread]: Starter project path: C:\Users\mbmbm\matbx-data\sports-db-project\venv\Lib\site-packages\dbt\include\starter_project
+[0m08:50:38.635093 [info ] [MainThread]: 
+Your new dbt project "sports_db" was created!
+
+For more information on how to configure the profiles.yml file,
+please consult the dbt documentation here:
+
+  https://docs.getdbt.com/docs/configure-your-profile
+
+One more thing:
+
+Need help? Don't hesitate to reach out to us via GitHub issues or on Slack:
+
+  https://community.getdbt.com/
+
+Happy modeling!
+
+[0m08:50:38.636388 [info ] [MainThread]: Setting up your profile.
+[0m08:50:43.939890 [info ] [MainThread]: Profile sports_db written to C:\Users\mbmbm\.dbt\profiles.yml using target's sample configuration. Once updated, you'll be able to start developing with dbt.
+[0m08:50:43.941518 [debug] [MainThread]: Command `dbt init` succeeded at 08:50:43.941346 after 38.73 seconds
+[0m08:50:43.941961 [debug] [MainThread]: Sending event: {'category': 'dbt', 'action': 'invocation', 'label': 'end', 'context': [<snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x0000027AF712E780>, <snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x0000027AF720F770>, <snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x0000027AF71BD8C0>]}
+[0m08:50:43.942490 [debug] [MainThread]: Flushing usage events
+[0m08:50:44.304523 [debug] [MainThread]: An error was encountered while trying to flush usage events

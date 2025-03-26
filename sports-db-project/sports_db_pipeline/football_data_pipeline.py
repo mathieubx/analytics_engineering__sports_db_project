@@ -1,11 +1,5 @@
-#!/usr/bin/env python
-# coding: utf-8
-
-# In[4]:
-
-
 # A pipeline coded the good old way
-
+print("running...")
 # Let's build a function for the football data source. 
 # Its arguments will be: 
 #   endpoint, 
@@ -20,20 +14,23 @@ import toml
 import datetime
 from datetime import datetime as dt 
 import time
+import json
+from ast import literal_eval
 
 # /?dateFrom=2022-01-01
 # /?dateTo=2022-01-10
+
+# Initialization: Let's create the needed variables
+secrets=toml.load("C:/Users/mbmbm/matbx-data/sports-db-project/sports_db_pipeline/.dlt/secrets.toml")
+request_header=secrets['source']['football_data']['request_header']
+api_key=secrets['source']['football_data']['api_key']
+database_path = "C:/Users/mbmbm/matbx-data/sports-db-project/duckdb-databases/sports_db.duckdb"
 
 def extract_load_football_data(
         endpoint = None,
         column_names = None,
         **params # Note: Arbitrary keyword arguments are dictionaries
 ):
-
-    # Step 0: import API credentials
-    secrets=toml.load("C:/Users/mbmbm/matbx-data/sports-db-project/sports_db_dlt/.dlt/secrets.toml")
-    request_header=secrets['source']['football_data']['request_header']
-    api_key=secrets['source']['football_data']['api_key']
 
     # Step 1: Define request URL
     # If there are no parameters passed to the function (meaning: params is an empty dictionary), take the whole endpoint
@@ -53,18 +50,15 @@ def extract_load_football_data(
 
     # DuckDB documentation to load data from pandas: https://duckdb.org/docs/stable/guides/python/import_pandas.html
     # Here, the "with" structure is a context manager that enables to close the connection (created on the just above line) automatically
+    # Note that we prefix the table name with "raw", which specifies the schema we want to populate
     try:
-        with duckdb.connect("C:/Users/mbmbm/matbx-data/sports-db-project/duckdb-databases/sports_db-raw.duckdb") as con:
-            con.sql(f"CREATE OR REPLACE TABLE {endpoint} AS SELECT * FROM endpoint_df")
+        with duckdb.connect(database_path) as con:
+            con.sql(f"CREATE OR REPLACE TABLE raw.football_data__{endpoint} AS SELECT * FROM endpoint_df")
         message="Successfully pushed dataframe to DuckDB"
     except:
         message="Error, couldn't load data into DuckDB"
 
     return(message)
-
-
-# In[5]:
-
 
 # Calling pipelines
 
@@ -95,39 +89,11 @@ extract_load_football_data(
     ]
 )
 
-# Teams
-extract_load_football_data(
-    endpoint='teams', 
-    column_names=[ 
-        "id",
-        "area",
-        "name",
-        "shortName",
-        "tla",
-        "address",
-        "website",
-        "founded",
-        "clubColors",
-        "venue",
-        "runningCompetitions",
-        "coach",
-        "marketValue",
-        "squad",
-        "staff",
-        "lastUpdated"
-    ]
-)
+print('Areas and competitions extracted.')
 
+# Extract matches
 
-# In[6]:
-
-
-time.sleep(300) # We pause to make sure we don't exceed the number of request allowed per minute.
-
-# Step 0: import API credentials
-secrets=toml.load("C:/Users/mbmbm/matbx-data/sports-db-project/sports_db_dlt/.dlt/secrets.toml")
-request_header=secrets['source']['football_data']['request_header']
-api_key=secrets['source']['football_data']['api_key']
+time.sleep(100)
 
 # Seems like data is available from 2024-06-01
 # Also, specified period cannot exceed 10 days
@@ -161,8 +127,6 @@ for index, period in ten_days_periods.iterrows():
 
     # Making the actual requests
     url = f"https://api.football-data.org/v4/matches/?dateFrom={period_start_date}&dateTo={period_end_date}"
-    print(url)
-    print(requests.get(url, headers={request_header:api_key}).json())
     try:
         response = requests.get(url, headers={request_header:api_key}).json()['matches'] # This is a list
     except:
@@ -170,10 +134,6 @@ for index, period in ten_days_periods.iterrows():
     matches_list.append(response)
 
     if i%5==0: time.sleep(60) # Stop the program for 60 second each 5 requests. Why 5? Because it feels like the "10 requests per minute" are too much for the API
-
-
-# In[24]:
-
 
 # Now, the only thing we still need to do is concatenate the requests outputs together (equivalent of UNION ALL in SQL)
 
@@ -191,13 +151,83 @@ for item in matches_list:
 matches_df.reset_index(inplace=True, drop=True)
 
 # And we finally have our matches source table, ready to be pushed to our raw DuckDB database
-with duckdb.connect("C:/Users/mbmbm/matbx-data/sports-db-project/duckdb-databases/sports_db-raw.duckdb") as con:
-    con.sql("CREATE OR REPLACE TABLE matches AS SELECT * FROM matches_df")
+with duckdb.connect(database_path) as con:
+    con.sql("CREATE OR REPLACE TABLE raw.football_data__matches AS SELECT * FROM matches_df")
 
+print("Matches extracted.")
 
-# In[ ]:
+# Extract teams
 
+# The football-data.org API free plan grants us access to the 12 major football leagues.
+# Therefore, we can only access the teams data for these 12 leagues' teams
+# Strategy : iterate through each league ID and extract the teams that belong to them.
 
-# Quick check
-with duckdb.connect("C:/Users/mbmbm/matbx-data/sports-db-project/duckdb-databases/sports_db-raw.duckdb") as con:
-    con.sql("SELECT * FROM matches").show()
+time.sleep(100) # Letting the API rest (lol starting to crack up dev jokes)
+
+# Since we only have 12 leagues, I manually listed them below:
+major_league_ids = [
+    2002,  # Bundesliga
+    2013,  # Campeonato Brasileiro Série A
+    2016,  # Championship
+    2152,  # Copa Libertadores
+    2003,  # Eredivisie
+    2018,  # European Championship
+    2015,  # Ligue 1
+    2021,  # Premier League
+    2017,  # Primeira Liga
+    2014,  # Primera Division
+    2019,  # Serie A
+    2001   # UEFA Champions League
+]
+
+i = 0 # Set a count to deal with the limit of 10 requests per minute
+#####################################################################################################################
+# (Notebook only)
+full_df = pd.DataFrame() # Creating an empty DataFrame to prevent from working with an already existing one 
+#####################################################################################################################
+
+# Step 1: Set up the loop
+for id in major_league_ids:
+    url = f"http://api.football-data.org/v4/competitions/{id}/teams?season=2024"
+    response = requests.get(url, headers={request_header:api_key}).json()
+
+    i = i + 1
+    
+    # Step 2: Create the DataFrame
+    df = pd.DataFrame(response['teams'])
+
+    # Step 2a: Add season and competition  
+    # We add a few key information to the teams that are not contained in the 'teams' json's item: competition, season.
+    # I don't necessarilly understand why, but to add json columns to a DataFrame, we need to pass it to the json.dumps() function.
+    # For better understanding of the data structure, don't hesitate to print the "response" variable
+    df['competition'] = json.dumps(response['competition']) 
+
+    # Remove "winner" item with Dict Comprehension. Its null values make literal_eval() below crash
+    season_without_winner = {k: v for k, v in response['season'].items() if k != "winner"}
+    df['season'] = json.dumps(season_without_winner)
+
+    # Step 2b: Handle string format of these columns
+    # We will convert the "season" and "competition" columns values into dicts (the literal_eval() function does so). This will enable DuckDB to treat it as a STRUCT. Otherwise, we would end up with a VARCHAR column containing JSON. Doing this step in Python will make it easier to deal with the column in DBT further down the process.
+    df['competition'] = df['competition'].apply(lambda x: literal_eval(x))
+    df['season'] = df['season'].apply(lambda x: literal_eval(x)) 
+
+    # Step 3: Concatenate the current DataFrame with the previous one
+    # On the first iteration, the 'try' will fail, and create a first version of the 'full_df' (e.g. the df that stores all previous iterations)
+    try:
+        full_df = pd.concat([full_df, df])
+    except:
+        full_df = df
+
+    # Set timer after 10 requests    
+    if i%10 == 0: time.sleep(70)    
+
+teams_df = full_df
+teams_df.reset_index(inplace=True, drop=True)
+
+# And we finally have our teams source table, ready to be pushed to our raw DuckDB database
+with duckdb.connect(database_path) as con:
+    con.sql("CREATE OR REPLACE TABLE raw.football_data__teams AS SELECT * FROM teams_df")
+
+print("Teams extracted.")
+
+print("end of running.")

@@ -1,0 +1,27 @@
+sources:
+  # - name: sports_db_raw 
+  #   database: sports_db-raw
+  #   description: "Database containing raw data right to the source."
+  #   schema: main # Remember, we have 3 schemas in our small database. They act as 3 separate databases: raw, dev, prod
+  #   tables:
+  #   - name: areas
+  #     description: "Areas table as extracted from the football-data API"
+  #   - name: competitions
+  #     description: "Competitions table as extracted from the football-data API"
+  #   - name: teams
+  #     description: "Teams table as extracted from the football-data API"
+  #   - name: matches
+  #     description: "Matches table as extracted from the football-data API"
+
+  - name: sports_db_raw
+    database: sports_db
+    schema: raw
+    tables:
+    - name: areas
+      description: "Areas table as extracted from the football-data API"
+    - name: competitions
+      description: "Competitions table as extracted from the football-data API"
+    - name: teams
+      description: "Teams table as extracted from the football-data API"
+    - name: matches
+      description: "Matches table as extracted from the football-data API"

@@ -1,0 +1,21 @@
+models:
+  - name: common_footballdata__continents
+    columns:
+      - name: continent_id
+        description: PK, unique identifier of the continent
+        data_type: VARCHAR
+        data_tests:
+          - not_null
+          - unique
+          - relationships:
+              to: ref('stg_footballdate__areas')
+              field: continent_id
+      - name: continent_name
+        description: Name of the continent
+        data_type: VARCHAR
+        data_tests:
+          - not_null
+          - unique
+          - relationships:
+              to: ref('stg_footballdate__areas')
+              field: continent_name

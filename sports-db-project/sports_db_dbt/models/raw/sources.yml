@@ -17,11 +17,11 @@ sources:
     database: sports_db
     schema: raw
     tables:
-    - name: areas
+    - name: football_data__areas
       description: "Areas table as extracted from the football-data API"
-    - name: competitions
+    - name: football_data__competitions
       description: "Competitions table as extracted from the football-data API"
-    - name: teams
+    - name: football_data__teams
       description: "Teams table as extracted from the football-data API"
-    - name: matches
+    - name: football_data__matches
       description: "Matches table as extracted from the football-data API"

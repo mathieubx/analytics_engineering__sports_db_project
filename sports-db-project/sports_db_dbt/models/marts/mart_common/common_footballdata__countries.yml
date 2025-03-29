@@ -1,0 +1,50 @@
+models:
+  - name: common_footballdata__countries
+    columns:
+      - name: country_id
+        description: PK, Unique identifier of the country
+        data_type: VARCHAR
+        data_tests:
+          - not_null
+          - unique
+          - relationships:
+              to: ref('stg_footballdata__areas')
+              field: country_id
+      - name: football_data_area_id
+        description: Area ID as found in the source (football-data API)
+        data_type: VARCHAR
+        data_tests:
+          - not_null
+          - unique
+          - relationships:
+              to: ref('stg_footballdata__areas')
+              field: football_data_area_id
+      - name: country_name
+        description: Name of the country
+        data_type: VARCHAR
+        data_tests:
+          - unique
+          - not_null
+          - relationships:
+              to: ref('stg_footballdata__areas')
+              field: country_name
+      - name: country_code
+        description: Short code of the country
+        data_type: VARCHAR(3)
+        data_tests:
+          - unique
+          - not_null
+          - dbt_expectations.expect_column_value_lengths_to_equal:
+              value: 3
+              row_condition: "country_name != 'United Kingdom'" # (Optional)
+          - relationships:
+              to: ref('stg_footballdata__areas')
+              field: country_code
+      - name: continent_id
+        description: FK, Unique Identifier of the country's continent
+        data_type: VARCHAR
+        data_tests:
+          - not_null
+          - relationships:
+              to: ref('common_footballdata__countries')
+              field: continent_id

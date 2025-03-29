@@ -1,0 +1,48 @@
+models:
+  - name: stg_footballdata__competitions
+    columns:
+      - name: competition_id
+        description: PK, Competition unique identifier
+        data_type: VARCHAR
+        data_tests:
+          - unique
+          - not_null
+      - name: football_data_competition_id
+        description: Competition ID as found in the source (football-data API)
+        data_type: VARCHAR
+        data_tests:
+          - unique
+          - not_null
+      - name: competition_name
+        description: Name of the competition
+        data_type: VARCHAR
+        data_tests:
+          - unique
+          - not_null
+      - name: competition_code
+        description: Name of the competition
+        data_type: VARCHAR
+        data_tests:
+          - unique
+          - not_null
+      - name: competition_type
+        description: Is the competition a league or a cup?
+        data_type: VARCHAR
+        data_tests:
+          - not_null
+          - accepted_values:
+              values: ['league', 'cup']
+      - name: country_name
+        description: Country hosting the competition
+        data_type: VARCHAR
+        data_test:
+          - not_null
+          - relationships:
+              to: ref('stg_footballdata__areas')
+              field: country_name
+      - name: current_season_id
+        description: ID of the season that currently played (current means "At last update date")
+        data_type: VARCHAR
+        data_tests:
+          - not_null
+          # - relationships to seasons to add

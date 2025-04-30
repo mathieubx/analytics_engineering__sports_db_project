@@ -1,0 +1,243 @@
+models: 
+  - name: football_football_data__standings_current
+    description: Standings are made of placements. Each placement is a unique pair of team/competition, materialized through a ranking
+    columns:
+      - name: current_placement_id
+        description: PK, ID of the placement
+        data_type: VARCHAR
+        data_tests:
+          - not_null
+          - unique
+      - name: ranking
+        description: Current ranking of ther team in the competition
+        data_type: INTEGER
+        data_tests:
+          - not_null
+          - dbt_utils.accepted_range:
+            # Control for weird rankings
+              min_value: 1
+              max_value: 50
+      - name: competition_name
+        description: Name of the competition
+        data_type: VARCHAR
+        data_tests:
+          - not_null
+          - relationships:
+              to: ref('stg_football_data__competitions')
+              field: competition_name
+      - name: competition_id
+        description: ID of the competition
+        data_type: VARCHAR
+        date_tests: 
+          - not_null
+          - relationships:
+              to: ref('stg_football_data__competitions')
+              field: competition_id
+      - name: team_name
+        description: Name of the team
+        data_type: VARCHAR
+        data_tests: 
+          - not_null
+          - relationships:
+              to: ref('stg_football_data__teams')
+              field: team_name
+      - name: team_id
+        description: ID of the team
+        data_type: VARCHAR
+        data_tests: 
+          - not_null
+          - relationships:
+              to: ref('stg_football_data__teams')
+              field: team_id
+      - name: home_pts
+        description: Number of points won in home matches
+        data_type: INTEGER
+        data_tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              min_value: 0
+              max_value: 500
+      - name: away_pts
+        description: Number of points won in away matches
+        data_type: INTEGER
+        data_tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              min_value: 0
+              max_value: 500
+      - name: total_pts
+        description: Total number of points won so far in the season
+        data_type: INTEGER
+        data_tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              min_value: 0
+              max_value: 500
+      - name: number_of_home_matches
+        description: Number of matches played at home
+        data_type: INTEGER
+        data_tests: 
+          - not_null
+          - dbt_utils.accepted_range:
+              min_value: 0
+              max_value: 46 # The maximum number of matches is 46 in Championship
+      - name: number_of_away_matches
+        description: Number of matches played away
+        data_type: INTEGER
+        data_tests: 
+          - not_null
+          - dbt_utils.accepted_range:
+              min_value: 0
+              max_value: 46 
+      - name: total_number_of_matches
+        description: Total number of matches played so far in the season
+        data_type: INTEGER
+        data_tests: 
+          - not_null
+          - dbt_utils.accepted_range:
+              min_value: 0
+              max_value: 46
+      - name: goals_scored_at_home
+        description: Number of goals scored in home matches
+        data_type: INTEGER
+        data_tests: 
+          - not_null
+          - dbt_utils.accepted_range:
+              min_value: 0
+              max_value: 500
+      - name: goals_conceded_at_home
+        description: Number of goals conceded in home matches
+        data_type: INTEGER
+        data_tests: 
+          - not_null
+          - dbt_utils.accepted_range:
+              min_value: 0
+              max_value: 500
+      - name: goals_scored_away
+        description: Number of goals scored in away matches
+        data_type: INTEGER
+        data_tests: 
+          - not_null
+          - dbt_utils.accepted_range:
+              min_value: 0
+              max_value: 200
+      - name: goals_conceded_away
+        description: Number of goals conceded in away matches
+        data_type: INTEGER
+        data_tests: 
+          - not_null
+          - dbt_utils.accepted_range:
+              min_value: 0
+              max_value: 500
+      - name: total_goals_scored
+        description: Total number of goals scored in the season
+        data_type: INTEGER
+        data_tests: 
+          - not_null
+          - dbt_utils.accepted_range:
+              min_value: 0
+              max_value: 500
+      - name: total_goals_conceded
+        description: Total number of goals conceded in the season
+        data_type: INTEGER
+        data_tests: 
+          - not_null
+          - dbt_utils.accepted_range:
+              min_value: 0
+              max_value: 500
+      # Struct #
+      - name: home_record.number_of_home_wins
+        description: number of wins at home
+        data_type: INTEGER
+        data_tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              min_value: 0
+              max_value: 46
+      - name: home_record.number_of_home_draws
+        description: number of draws at home
+        data_type: INTEGER
+        data_tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              min_value: 0
+              max_value: 46
+      - name: home_record.number_of_home_losses
+        description: number of losses at home
+        data_type: INTEGER
+        data_tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              min_value: 0
+              max_value: 46
+      # Struct #
+      - name: away_record.number_of_away_wins
+        description: number of wins away
+        data_type: INTEGER
+        data_tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              min_value: 0
+              max_value: 46
+      - name: away_record.number_of_away_draws
+        description: number of draws away
+        data_type: INTEGER
+        data_tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              min_value: 0
+              max_value: 46
+      - name: away_record.number_of_away_losses
+        description: number of losses away
+        data_type: INTEGER
+        data_tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              min_value: 0
+              max_value: 46
+      # Struct #
+      - name: global_record.number_of_wins
+        description: number of wins
+        data_type: INTEGER
+        data_tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              min_value: 0
+              max_value: 46
+      - name: global_record.number_of_draws
+        description: number of draw
+        data_type: INTEGER
+        data_tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              min_value: 0
+              max_value: 46
+      - name: global_record.number_of_losses
+        description: number of losses
+        data_type: INTEGER
+        data_tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              min_value: 0
+              max_value: 46
+        
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+        # Test that ensures that each ranking is unique within each competition. Ex aequo do not exist in football
+          combination_of_columns:
+            - competition_id
+            - ranking
+      - dbt_utils.expression_is_true:
+          expression: 'number_of_home_matches > 0'
+          where: home_record.number_of_home_wins > 0
+      - dbt_utils.expression_is_true:
+          expression: 'number_of_away_matches > 0'
+          where: away_record.number_of_away_wins > 0
+      - dbt_utils.expression_is_true:
+          expression: 'home_record.number_of_home_wins > 0'
+          where: home_pts > 0
+      - dbt_utils.expression_is_true:
+          expression: 'away_record.number_of_away_wins > 0'
+          where: away_pts > 0
+        
+        

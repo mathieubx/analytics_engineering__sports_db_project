@@ -1,0 +1,142 @@
+models:
+  - name: stg_football_data__matches
+    columns: 
+      - name: match_id
+        description: PK, ID of the match, as found in the source (football-data API)
+        data_type: VARCHAR
+        data_tests:
+          - unique
+          - not_null
+      - name: match_at
+        description: When the match was played (need to check the TZ)
+        data_type: TIMESTAMP
+        data_tests:
+          - not_null
+      - name: status
+        description: Status of the game at the moment of extraction
+        data_type: VARCHAR
+        data_tests: 
+          - not_null
+          - accepted_values:
+              values: ['timed', 'finished', 'paused','in play']
+      - name: matchday_number
+        description: Number of the "match day" the game is played on. For instance, in newspaper, you could read "During the tenth matchday of Premier League, ..." or "La tête d'affiche de la 13e journée de ligue 1 opposera..."
+        data_type: INTEGER
+        data_tests: 
+          - not_null
+          - dbt_utils.accepted_range:
+              min_value: 1
+              max_value: 40 # Which is the highest number of matches played among the 12 main football leagues provided by the football-data API
+      - name: stage
+        description: Stage at which the match is played. Mostly for matches in competitions where competition_type is 'cup'
+        data_type: VARCHAR
+        data_tests:
+          - not_null
+          - accepted_values: 
+              values: '{{ var("football_match_stages") }}'
+      - name: home_team_id
+        description: ID of the home team, as found in the source (football-data API)
+        data_type: VARCHAR
+        data_tests:
+          - not_null
+          - relationships:
+              to: ref('stg_football_data__teams')
+              field: team_id
+      - name: away_team_id
+        description: ID of the away team, as found in the source (football-data API)
+        data_type: VARCHAR
+        data_tests:
+          - relationships:
+              to: ref('stg_football_data__teams')
+              field: team_id
+      - name: referees_ids
+        description: IDs of the referees, as found in the source (football-data API)
+        data_type: ARRAY<VARCHAR>
+        # For now, we don't test referees because we will not really need them
+      - name: winner
+        description: Who won the match?
+        data_type: VARCHAR
+        data_tests:
+          - not_null:
+              where: status = 'finished'
+          - accepted_values:
+              values: ['home team', 'away team', 'draw']
+      - name: duration_type
+        description: Type of end of the match. Note that "Lately there are some issues with extratime/penalty score sync to the free tier", according to Daniel, the man who built the API (latest update on 2025/04/08). These issues imply that some matches that finished in extra time might have a duration_type = "regular"  
+        data_type: VARCHAR
+        data_tests:
+          - not_null
+          - accepted_values:
+              values: ['regular', 'extra time', penalty shootout]
+      - name: full_time_home_score
+        description: Score of the home team at the end of the match
+        data_type: INTEGER
+        data_test:
+          - not_null
+          - dbt_utils.accepted_range:
+              min_value: 0
+              max_value: 20 # Defined according to my subjective common senses
+      - name: full_time_away_score
+        description: Score of the away team at the end of the match
+        data_type: INTEGER
+        data_test:
+          - not_null
+          - dbt_utils.accepted_range:
+              min_value: 0
+              max_value: 20
+      - name: half_time_home_score
+        description: Score of the home team at the end of the match
+        data_type: INTEGER
+        data_test:
+          - not_null
+          - dbt_utils.accepted_range:
+              min_value: 0
+              max_value: 10 
+      - name: half_time_away_score
+        description: Score of the away team at the end of the match
+        data_type: INTEGER
+        data_test:
+          - not_null
+          - dbt_utils.accepted_range:
+              min_value: 0
+              max_value: 10
+      - name: area_id
+        description: ID of the area in which the match takes place
+        data_type: VARCHAR
+        data_tests:
+          - not_null
+          - relationships:
+              to: ref('stg_football_data__areas')
+              field: area_id
+      - name: competition_id
+        description: ID of the competition of the match
+        data_type: VARCHAR
+        data_tests:
+          - not_null
+          - relationships:
+              to: ref('stg_football_data__competitions')
+              field: competition_id
+      - name: season_id
+        description: ID of the season
+        data_type: VARCHAR
+        data_tests:
+          - not_null
+          - relationships:
+              to: ref('stg_football_data__seasons')
+              field: season_id
+
+    tests:
+    - dbt_utils.expression_is_true:
+        expression: "match_at > CAST('2020-01-01T00:00:00' AS TIMESTAMP)" # Just to spot weird dates
+    - dbt_utils.expression_is_true:
+        expression: "match_at < last_updated_at"
+        config:
+          where: status = 'finished'
+    - dbt_utils.expression_is_true:
+        expression: "status = 'finished'"
+        config:
+          where: CAST(match_at AS DATE) < last_updated_at - INTERVAL 24 HOURS # -- all matches up to 24 hours before the last extraction must be "finished". Matches in the last 24 hours, depending on when they are scheduled, may be ongoing at the time of extraction.
+    - dbt_utils.expression_is_true:
+        expression: "matchday_number > 0"
+    - dbt_utils.expression_is_true:
+        expression: "home_team_id != away_team_id"

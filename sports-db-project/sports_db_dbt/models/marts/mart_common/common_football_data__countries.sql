@@ -1,12 +1,12 @@
 WITH 
 
 areas AS (
-    SELECT * FROM {{ ref('stg_footballdata__areas') }}
+    SELECT * FROM {{ ref('stg_football_data__areas') }}
 )
 
 SELECT 
     country_id,
-    football_data_area_id,
+    area_id,
     country_name,
     country_code,
     continent_id

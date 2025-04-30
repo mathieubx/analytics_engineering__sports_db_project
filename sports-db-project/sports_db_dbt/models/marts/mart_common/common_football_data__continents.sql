@@ -1,7 +1,7 @@
 WITH 
 
 areas AS (
-    SELECT * FROM {{ ref("stg_footballdata__areas") }}
+    SELECT * FROM {{ ref("stg_football_data__areas") }}
 )
 
 SELECT DISTINCT

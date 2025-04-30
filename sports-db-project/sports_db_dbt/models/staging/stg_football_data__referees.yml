@@ -1,0 +1,22 @@
+models:
+  - name: stg_football_data__referees
+    columns:
+      - name: referee_id
+        description: PK, ID of the referee, as found in the source (football-data API)
+        data_type: VARCHAR
+        data_tests:
+          - unique
+          - not_null
+      - name: full_name
+        description: Full name of the referee
+        data_type: VARCHAR
+        data_tests:
+          - not_null
+      - name: nationality
+        description: Nationality of the referee
+        data_type: VARCHAR
+        data_tests:
+          - not_null
+          - relationships: 
+              to: ref('stg_football_data__areas')
+              field: country_name

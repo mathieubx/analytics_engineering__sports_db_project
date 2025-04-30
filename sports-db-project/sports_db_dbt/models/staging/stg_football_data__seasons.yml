@@ -1,0 +1,39 @@
+models:
+  - name: stg_football_data__seasons
+    columns:
+      - name: season_uid
+        description: PK, Unique identifier of the season. A season's unicity lies on a combination of a start date, end date, and competition
+        data_type: VARCHAR
+        data_tests:
+          - unique
+          - not_null
+      - name: season_id
+        description: Season ID, as found in the source (football-data API)
+        data_type: VARCHAR
+        data_tests:
+          - unique
+          - not_null
+      - name: start_date
+        description: Official start date of the season
+        data_type: DATE
+        data_tests:
+          - not_null
+      - name: end_date
+        description: Official end date of the season
+        data_type: DATE
+        data_tests:
+          - not_null
+      - name: competition_id
+        description: FK, ID of the competition, as found in the source (football-data API)
+        data_type: VARCHAR
+        data_tests:
+          - not_null
+          - relationships:
+              to: ref('stg_football_data__competitions')
+              field: competition_id
+
+    tests:
+      - dbt_expectations.expect_column_pair_values_A_to_be_greater_than_B:
+          column_A: end_date
+          column_B: start_date
+          or_equal: False

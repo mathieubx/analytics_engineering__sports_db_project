@@ -1,0 +1,19 @@
+# Pipeline requirements
+requests
+pandas
+duckdb
+toml
+datetime
+time
+json
+ast
+selenium
+
+# dbt requirements
+dbt-core
+dbt-duckdb
+
+# importing packages requirements
+importlib
+subprocess
+sys

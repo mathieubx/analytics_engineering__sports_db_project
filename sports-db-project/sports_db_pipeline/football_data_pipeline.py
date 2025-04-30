@@ -21,7 +21,7 @@ from ast import literal_eval
 # /?dateTo=2022-01-10
 
 # Initialization: Let's create the needed variables
-secrets=toml.load("C:/Users/mbmbm/matbx-data/sports-db-project/sports_db_pipeline/.dlt/secrets.toml")
+secrets=toml.load("C:/Users/mbmbm/matbx-data/sports-db-project/sports_db_pipeline/secrets.toml")
 request_header=secrets['source']['football_data']['request_header']
 api_key=secrets['source']['football_data']['api_key']
 database_path = "C:/Users/mbmbm/matbx-data/sports-db-project/duckdb-databases/sports_db.duckdb"
@@ -149,6 +149,15 @@ for item in matches_list:
     matches_df = pd.concat([matches_df, pd.DataFrame(item)])
 
 matches_df.reset_index(inplace=True, drop=True)
+
+# In the source, the 'score' column is made of nested json items. This translate in python to a dictionaries of dictionaries.
+# Unfortunately DuckDB doesn't handle dicts of dicts and loads them as a VARCHAR, making hard to manipulate them in SQL
+# To deal with this situation, we break the 'score' column into other columns
+matches_df['winner'] = matches_df['score'].map(lambda x: x['winner']) # Accessing each 'winner' item of each row. Did so because matches_df['score']['winner'] doesn't work cause df['score'] returns a series of dicts. The series per say doesn't have a 'winner' key.
+matches_df['duration'] = matches_df['score'].map(lambda x: x['duration'])
+matches_df['full_time'] = matches_df['score'].map(lambda x: x['fullTime'])
+matches_df['half_time'] = matches_df['score'].map(lambda x: x['halfTime'])
+matches_df = matches_df.drop(columns='score')
 
 # And we finally have our matches source table, ready to be pushed to our raw DuckDB database
 with duckdb.connect(database_path) as con:

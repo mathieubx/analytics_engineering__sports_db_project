@@ -1,0 +1,39 @@
+models:
+  - name: stg_football_data__coaches
+    columns:
+      - name: coach_id
+        description: ID of the coach as found in the source system (football-data API)
+        data_type: VARCHAR
+        data_tests: 
+          - unique
+          - not_null
+      - name: first_name
+        description: First name of the coach
+        data_type: VARCHAR
+        data_tests: 
+          - not_null
+      - name: last_name
+        description: Last name of the coach
+        data_type: VARCHAR
+        data_tests: 
+          - not_null
+      - name: full_name
+        description: Full name of the coach
+        data_type: VARCHAR
+        data_tests:
+          - not_null
+          - unique
+      - name: birth_date
+        description: Birth date of the coach
+        data_type: DATE
+        data_tests:
+          - not_null        
+      - name: nationality
+        description: Nationality of the coach
+        data_type: VARCHAR
+        data_tests: 
+          - not_null
+
+    tests:
+      - dbt_utils.expression_is_true:
+          expression: birth_date > current_date - INTERVAL 80 YEARS # Logically, no coach should be more than 80 years old (common sense)

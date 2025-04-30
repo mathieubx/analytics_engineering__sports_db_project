@@ -1,5 +1,5 @@
-models: 
-  - name: stg_footballdata__areas
+models:
+  - name: common_football_data__countries
     columns:
       - name: country_id
         description: PK, Unique identifier of the country
@@ -7,18 +7,27 @@ models:
         data_tests:
           - not_null
           - unique
-      - name: football_data_area_id
+          - relationships:
+              to: ref('stg_football_data__areas')
+              field: country_id
+      - name: area_id
         description: Area ID as found in the source (football-data API)
         data_type: VARCHAR
         data_tests:
           - not_null
           - unique
+          - relationships:
+              to: ref('stg_football_data__areas')
+              field: area_id
       - name: country_name
         description: Name of the country
         data_type: VARCHAR
         data_tests:
           - unique
           - not_null
+          - relationships:
+              to: ref('stg_football_data__areas')
+              field: country_name
       - name: country_code
         description: Short code of the country
         data_type: VARCHAR(3)
@@ -28,20 +37,14 @@ models:
           - dbt_expectations.expect_column_value_lengths_to_equal:
               value: 3
               row_condition: "country_name != 'United Kingdom'" # (Optional)
+          - relationships:
+              to: ref('stg_football_data__areas')
+              field: country_code
       - name: continent_id
         description: FK, Unique Identifier of the country's continent
         data_type: VARCHAR
-      - name: continent_name
-        description: Name of the country's continent
-        data_type: VARCHAR
         data_tests:
-          - not_null:
-              where: continent_id IS NOT NULL
-          - accepted_values: 
-              values: ['Africa', 'Asia', 'Europe', 'South America', 'North America', 'Oceania', 'World']
-      - name: football_data_parent_area_id
-        description: Parent Area ID as found in the source (football-data API)
-        data_type: VARCHAR
-        data_tests:
-          - not_null:
-              where: country_name != 'World'
+          - not_null
+          - relationships:
+              to: ref('common_football_data__countries')
+              field: continent_id

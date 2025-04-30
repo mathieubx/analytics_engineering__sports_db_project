@@ -33,3 +33,65 @@ models:
   sports_db:
     # Config indicated by + and applies to all files under models/example/
     +materialized: table
+
+vars:
+  main_competition_ids: [
+    '2013', 
+    '2016', 
+    '2021', 
+    '2001', 
+    '2018', 
+    '2015', 
+    '2002', 
+    '2019', 
+    '2003', 
+    '2017', 
+    '2152', 
+    '2014', 
+    '2000'
+  ]
+  football_positions: [
+    'Centre-Forward', 
+    'Midfield', 
+    'Left Midfield', 
+    'Defence', 
+    'Left-Back', 
+    'Attacking Midfield', 
+    'Goalkeeper', 
+    'Centre-Back', 
+    'Right Midfield', 
+    'Right Winger', 
+    'Offence', 
+    'Central Midfield', 
+    'Left Winger', 
+    'Right-Back', 
+    'Defensive Midfield'
+  ]
+  football_competition_names: [
+    'UEFA Champions League', 
+    'Bundesliga', 
+    'Championship', 
+    'Campeonato Brasileiro Série A', 
+    'Premier League', 
+    'Ligue 1', 
+    'Serie A', 
+    'Eredivisie', 
+    'Copa Libertadores', 
+    'FIFA World Cup', 
+    'Primeira Liga', 
+    'European Championship', 
+    'Primera Division'
+  ]
+  football_match_stages: [
+    'regular season',
+    'round 1',
+    'group stage',
+    'round 2',
+    'round 3',
+    'quarter finals',
+    'semi finals',
+    'last 16',
+    'playoffs',
+    'final',
+    'league stage'
+  ] 

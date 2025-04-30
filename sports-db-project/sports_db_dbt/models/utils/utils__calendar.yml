@@ -1,0 +1,69 @@
+models:
+  - name: utils__calendar
+    columns:
+      - name: date_day
+        description: Date of the day
+        data_type: TIMESTAMP
+      - name: date_month
+        description: Month of the day
+        data_type: INTEGER
+        data_tests:
+          - dbt_utils.accepted_range:
+              min_value: 1
+              max_value: 12
+      - name: date_week
+        description: Number of the week of the year for the day
+        data_type: INTEGER
+        data_tests:
+          - dbt_utils.accepted_range:
+              min_value: 1
+              max_value: 53
+      - name: month_name
+        description: Full letters name of the month
+        data_type: VARCHAR
+        data_tests:
+          - accepted_values:
+              values: [
+                'January',
+                'February',
+                'March',
+                'April',
+                'May',
+                'June',
+                'July',
+                'August',
+                'September',
+                'October',
+                'November',
+                'December'
+              ]
+      - name: month_short_name
+        description: Short name of the month (3 letters)
+        data_type: VARCHAR
+        data_tests:
+          - accepted_values:
+              values: [
+                'Jan',
+                'Feb',
+                'Mar',
+                'Apr',
+                'May',
+                'Jun',
+                'Jul',
+                'Aug',
+                'Sep',
+                'Oct',
+                'Nov',
+                'Dec'
+              ]
+      - name: date_year
+        description: Year of the date
+        data_type: INTEGER
+        data_tests:
+          - dbt_utils.accepted_range:
+              min_value: 2000
+              max_value: 2050
+
+    tests:
+      - dbt_utils.expression_is_true:
+          expression: "date_day >= '2000-01-01' AND date_day <= '2050-12-31'"

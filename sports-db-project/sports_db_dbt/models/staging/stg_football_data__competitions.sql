@@ -5,8 +5,7 @@ competitions AS (
 )
 
 SELECT
-    {{ surrogate_key('competition', 'name') }} AS competition_id,
-    CAST(id AS VARCHAR) AS football_data_competition_id,
+    CAST(id AS VARCHAR) AS competition_id,
     CAST(name AS VARCHAR) AS competition_name,
     CAST(code AS VARCHAR) AS competition_code,  
     LOWER(CAST(type AS VARCHAR)) AS competition_type,

@@ -27,26 +27,49 @@ referees_ids AS (
         FROM filtered_matches
     )
     GROUP BY 1    
+), 
+
+casted_properties AS (
+    SELECT
+        CAST(filtered_matches.id AS VARCHAR) AS match_id,
+        CAST(filtered_matches.utcDate AS TIMESTAMP) AS match_at,
+        REPLACE(LOWER(CAST(filtered_matches.status AS VARCHAR)), '_', ' ') AS status,
+        CAST(filtered_matches.matchday AS INTEGER) AS matchday_number,
+        REPLACE(LOWER(CAST(filtered_matches.stage AS VARCHAR)), '_', ' ') AS stage,
+        CAST(filtered_matches.homeTeam.id AS VARCHAR) AS home_team_id,
+        CAST(filtered_matches.awayTeam.id AS VARCHAR) AS away_team_id,
+        referees_ids.referees_ids,
+        REPLACE(LOWER(CAST(filtered_matches.winner AS VARCHAR)),'_', ' ') AS winner,
+        LOWER(CAST(filtered_matches.duration AS VARCHAR)) AS duration_type,
+        CAST(filtered_matches.full_time.home AS INTEGER) AS full_time_home_score,
+        CAST(filtered_matches.full_time.away AS INTEGER) AS full_time_away_score,
+        CAST(filtered_matches.half_time.home AS INTEGER) AS half_time_home_score,
+        CAST(filtered_matches.half_time.away AS INTEGER) AS half_time_away_score,
+        CAST(filtered_matches.area.id AS VARCHAR) AS area_id,
+        CAST(filtered_matches.competition.id AS VARCHAR) AS competition_id,
+        CAST(filtered_matches.season.id AS VARCHAR) AS season_id,
+        CAST(filtered_matches.lastUpdated AS TIMESTAMP) AS last_updated_at
+    FROM filtered_matches
+    LEFT JOIN referees_ids ON filtered_matches.id = referees_ids.match_id
 )
 
 SELECT
-    CAST(filtered_matches.id AS VARCHAR) AS match_id,
-    CAST(filtered_matches.utcDate AS TIMESTAMP) AS match_at,
-    REPLACE(LOWER(CAST(filtered_matches.status AS VARCHAR)), '_', ' ') AS status,
-    CAST(filtered_matches.matchday AS INTEGER) AS matchday_number,
-    REPLACE(LOWER(CAST(filtered_matches.stage AS VARCHAR)), '_', ' ') AS stage,
-    CAST(filtered_matches.homeTeam.id AS VARCHAR) AS home_team_id,
-    CAST(filtered_matches.awayTeam.id AS VARCHAR) AS away_team_id,
-    referees_ids.referees_ids,
-    REPLACE(LOWER(CAST(filtered_matches.winner AS VARCHAR)),'_', ' ') AS winner,
-    LOWER(CAST(filtered_matches.duration AS VARCHAR)) AS duration_type,
-    CAST(filtered_matches.full_time.home AS INTEGER) AS full_time_home_score,
-    CAST(filtered_matches.full_time.away AS INTEGER) AS full_time_away_score,
-    CAST(filtered_matches.half_time.home AS INTEGER) AS half_time_home_score,
-    CAST(filtered_matches.half_time.away AS INTEGER) AS half_time_away_score,
-    CAST(filtered_matches.area.id AS VARCHAR) AS area_id,
-    CAST(filtered_matches.competition.id AS VARCHAR) AS competition_id,
-    CAST(filtered_matches.season.id AS VARCHAR) AS season_id,
-    CAST(filtered_matches.lastUpdated AS TIMESTAMP) AS last_updated_at
-FROM filtered_matches
-LEFT JOIN referees_ids ON filtered_matches.id = referees_ids.match_id
+    match_id,
+    match_at,
+    status,
+    matchday_number,
+    stage,
+    home_team_id,
+    away_team_id,
+    referees_ids,
+    winner,
+    duration_type,
+    full_time_home_score,
+    full_time_away_score,
+    half_time_home_score,
+    half_time_away_score,
+    area_id,
+    competition_id,
+    season_id,
+    last_updated_at
+FROM casted_properties

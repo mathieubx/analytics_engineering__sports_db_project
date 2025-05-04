@@ -26,7 +26,7 @@ models:
           - not_null
           - dbt_utils.accepted_range:
               min_value: 1
-              max_value: 40 # Which is the highest number of matches played among the 12 main football leagues provided by the football-data API
+              max_value: '{{ var("max_number_of_matches") }}'
       - name: stage
         description: Stage at which the match is played. Mostly for matches in competitions where competition_type is 'cup'
         data_type: VARCHAR

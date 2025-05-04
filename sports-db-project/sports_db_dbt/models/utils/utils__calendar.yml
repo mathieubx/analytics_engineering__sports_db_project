@@ -18,6 +18,16 @@ models:
           - dbt_utils.accepted_range:
               min_value: 1
               max_value: 53
+      - name: week_start_date
+        description: Date of the start of the week (Monday being the 1st day, Sunday the last)
+        data_type: TIMESTAMP
+        data_tests:
+          - not_null
+      - name: week_end_date
+        description: Date of the end of the week (Monday being the 1st day, Sunday the last)
+        data_type: TIMESTAMP
+        data_tests:
+          - not_null
       - name: month_name
         description: Full letters name of the month
         data_type: VARCHAR
@@ -67,3 +77,15 @@ models:
     tests:
       - dbt_utils.expression_is_true:
           expression: "date_day >= '2000-01-01' AND date_day <= '2050-12-31'"
+      - dbt_utils.expression_is_true:
+          expression: "week_end_date = week_start_date + INTERVAL 6 DAY"
+      - dbt_utils.expression_is_true:
+          expression: "WEEK(week_start_date) = date_week AND WEEK(week_end_date) = date_week"
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - week_start_date
+            - date_day
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - week_end_date
+            - date_day

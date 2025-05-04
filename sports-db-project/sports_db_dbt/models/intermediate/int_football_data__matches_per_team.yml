@@ -1,0 +1,36 @@
+models:
+  - name: int_football_data__matches_per_team
+    columns:
+      - name: team_match_id
+        description: PK, surrogate key that uniquely identifies a combination of match and team. 
+        data_type: VARCHAR
+        data_tests:
+          - unique
+          - not_null
+      - name: match_id
+        description: FK, ID of the match (common to both team that played it)
+        data_type: VARCHAR
+        data_tests:
+          - not_null
+          - relationships:
+              to: ref('stg_football_data__matches')
+              field: match_id
+      - name: team_id
+        description: FK, ID of the team
+        data_type: VARCHAR
+        data_tests:
+          - not_null
+          - relationships:
+              to: ref('stg_football_data__teams')
+              field: team_id
+      - name: team_playing_location
+        description: Is the match home or away for the team?
+        data_type: VARCHAR
+        data_tests:
+          - not_null
+          - accepted_values:
+              values: ['home', 'away']
+          - is_number_of_x_and_y_equal:
+            # There should be the same number of home and away matches in this table.
+              x_value: 'home' 
+              y_value: 'away'

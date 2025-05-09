@@ -1,5 +1,8 @@
 models:
   - name: stg_football_data__competitions
+    config:
+      contract:
+        enforced: true    
     columns:
       - name: competition_id
         description: PK, Competition ID as found in the source (football-data API)

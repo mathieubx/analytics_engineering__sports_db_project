@@ -1,5 +1,8 @@
 models:
   - name: stg_football_data__seasons
+    config:
+      contract:
+        enforced: true
     columns:
       - name: season_uid
         description: PK, Unique identifier of the season. A season's unicity lies on a combination of a start date, end date, and competition

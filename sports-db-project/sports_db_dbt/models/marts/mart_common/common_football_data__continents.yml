@@ -1,5 +1,8 @@
 models:
   - name: common_football_data__continents
+    config:
+      contract:
+        enforced: true
     columns:
       - name: continent_id
         description: PK, unique identifier of the continent

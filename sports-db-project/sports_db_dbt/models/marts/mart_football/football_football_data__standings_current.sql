@@ -20,14 +20,14 @@ matches AS (
 matches_with_pts AS (
 	SELECT
 		CASE
-			WHEN winner = 'home team' THEN 3
-			WHEN winner = 'away team' THEN 0
+			WHEN winner = 'home' THEN 3
+			WHEN winner = 'away' THEN 0
 			WHEN winner = 'draw' THEN 1
 			ELSE NULL
 		END AS home_team_pts,
 			CASE
-			WHEN winner = 'home team' THEN 0
-			WHEN winner = 'away team' THEN 3
+			WHEN winner = 'home' THEN 0
+			WHEN winner = 'away' THEN 3
 			WHEN winner = 'draw' THEN 1
 			ELSE NULL
 		END AS away_team_pts,
@@ -82,21 +82,15 @@ current_standings AS (
 		away_matches.sum_away_goals_conceded AS goals_conceded_away,
 		home_matches.sum_home_goals_scored + away_matches.sum_away_goals_scored AS total_goals_scored,
 		home_matches.sum_home_goals_conceded + away_matches.sum_away_goals_conceded AS total_goals_conceded,
-		STRUCT_PACK(
-			number_of_home_wins := home_matches.number_of_home_wins,
-			number_of_home_draws := home_matches.number_of_home_draws,
-			number_of_home_losses := home_matches.number_of_home_losses
-		) AS home_record,
-		STRUCT_PACK(
-			number_of_away_wins := away_matches.number_of_away_wins,
-			number_of_away_draws := away_matches.number_of_away_draws,
-			number_of_away_losses := away_matches.number_of_away_losses
-		) AS away_record,
-		STRUCT_PACK(
-			number_of_wins := home_matches.number_of_home_wins + away_matches.number_of_away_wins,
-			number_of_draws := home_matches.number_of_home_draws + away_matches.number_of_away_draws,
-			number_of_losses := home_matches.number_of_home_losses + away_matches.number_of_away_losses
-		) AS global_record,
+		home_matches.number_of_home_wins,
+		home_matches.number_of_home_draws,
+		home_matches.number_of_home_losses,
+		away_matches.number_of_away_wins,
+		away_matches.number_of_away_draws,
+		away_matches.number_of_away_losses,
+		home_matches.number_of_home_wins + away_matches.number_of_away_wins AS number_of_wins,
+		home_matches.number_of_home_draws + away_matches.number_of_away_draws AS number_of_draws,
+		home_matches.number_of_home_losses + away_matches.number_of_away_losses AS number_of_losses,
 	FROM home_matches
 	LEFT JOIN away_matches USING (team_id, competition_id)
 )
@@ -128,9 +122,15 @@ SELECT
     current_standings.goals_conceded_away,
     current_standings.total_goals_scored,
     current_standings.total_goals_conceded,
-	current_standings.home_record,
-	current_standings.away_record,
-	current_standings.global_record,
+	current_standings.number_of_home_wins,
+	current_standings.number_of_home_draws,
+	current_standings.number_of_home_losses,
+	current_standings.number_of_away_wins,
+	current_standings.number_of_away_draws,
+	current_standings.number_of_away_losses,
+	current_standings.number_of_wins,
+	current_standings.number_of_draws,
+	current_standings.number_of_losses,
 FROM current_standings
 LEFT JOIN teams ON current_standings.team_id = teams.team_id
 LEFT JOIN competitions ON current_standings.competition_id = competitions.competition_id

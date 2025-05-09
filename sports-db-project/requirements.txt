@@ -4,16 +4,17 @@ pandas
 duckdb
 toml
 datetime
-time
-json
-ast
-selenium
+ipykernel
+seaborn
+# time
+# json
+# ast
 
 # dbt requirements
 dbt-core
 dbt-duckdb
 
 # importing packages requirements
-importlib
-subprocess
-sys
+# importlib
+# subprocess
+# sys

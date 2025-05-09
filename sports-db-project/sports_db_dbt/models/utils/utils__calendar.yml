@@ -76,11 +76,11 @@ models:
 
     tests:
       - dbt_utils.expression_is_true:
-          expression: "date_day >= '2000-01-01' AND date_day <= '2050-12-31'"
+          expression: date_day >= '2000-01-01' AND date_day <= '2050-12-31'
       - dbt_utils.expression_is_true:
-          expression: "week_end_date = week_start_date + INTERVAL 6 DAY"
+          expression: week_end_date = week_start_date + INTERVAL 6 DAY
       - dbt_utils.expression_is_true:
-          expression: "WEEK(week_start_date) = date_week AND WEEK(week_end_date) = date_week"
+          expression: WEEK(week_start_date) = date_week AND WEEK(week_end_date) = date_week
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns:
             - week_start_date

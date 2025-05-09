@@ -1,5 +1,8 @@
 models: 
   - name: football_football_data__standings_current
+    config:
+      contract:
+        enforced: false
     description: Standings are made of placements. Each placement is a unique pair of team/competition, materialized through a ranking
     columns:
       - name: current_placement_id
@@ -28,7 +31,7 @@ models:
       - name: competition_id
         description: ID of the competition
         data_type: VARCHAR
-        date_tests: 
+        data_tests: 
           - not_null
           - relationships:
               to: ref('stg_football_data__competitions')
@@ -145,8 +148,7 @@ models:
           - dbt_utils.accepted_range:
               min_value: 0
               max_value: 500
-      # Struct #
-      - name: home_record.number_of_home_wins
+      - name: number_of_home_wins
         description: number of wins at home
         data_type: INTEGER
         data_tests:
@@ -154,7 +156,7 @@ models:
           - dbt_utils.accepted_range:
               min_value: 0
               max_value: 46
-      - name: home_record.number_of_home_draws
+      - name: number_of_home_draws
         description: number of draws at home
         data_type: INTEGER
         data_tests:
@@ -162,7 +164,7 @@ models:
           - dbt_utils.accepted_range:
               min_value: 0
               max_value: 46
-      - name: home_record.number_of_home_losses
+      - name: number_of_home_losses
         description: number of losses at home
         data_type: INTEGER
         data_tests:
@@ -170,8 +172,7 @@ models:
           - dbt_utils.accepted_range:
               min_value: 0
               max_value: 46
-      # Struct #
-      - name: away_record.number_of_away_wins
+      - name: number_of_away_wins
         description: number of wins away
         data_type: INTEGER
         data_tests:
@@ -179,7 +180,7 @@ models:
           - dbt_utils.accepted_range:
               min_value: 0
               max_value: 46
-      - name: away_record.number_of_away_draws
+      - name: number_of_away_draws
         description: number of draws away
         data_type: INTEGER
         data_tests:
@@ -187,7 +188,7 @@ models:
           - dbt_utils.accepted_range:
               min_value: 0
               max_value: 46
-      - name: away_record.number_of_away_losses
+      - name: number_of_away_losses
         description: number of losses away
         data_type: INTEGER
         data_tests:
@@ -195,8 +196,7 @@ models:
           - dbt_utils.accepted_range:
               min_value: 0
               max_value: 46
-      # Struct #
-      - name: global_record.number_of_wins
+      - name: number_of_wins
         description: number of wins
         data_type: INTEGER
         data_tests:
@@ -204,7 +204,7 @@ models:
           - dbt_utils.accepted_range:
               min_value: 0
               max_value: 46
-      - name: global_record.number_of_draws
+      - name: number_of_draws
         description: number of draw
         data_type: INTEGER
         data_tests:
@@ -212,7 +212,7 @@ models:
           - dbt_utils.accepted_range:
               min_value: 0
               max_value: 46
-      - name: global_record.number_of_losses
+      - name: number_of_losses
         description: number of losses
         data_type: INTEGER
         data_tests:
@@ -228,16 +228,16 @@ models:
             - competition_id
             - ranking
       - dbt_utils.expression_is_true:
-          expression: 'number_of_home_matches > 0'
-          where: home_record.number_of_home_wins > 0
+          expression: number_of_home_matches > 0
+          where: number_of_home_wins > 0
       - dbt_utils.expression_is_true:
-          expression: 'number_of_away_matches > 0'
-          where: away_record.number_of_away_wins > 0
+          expression: number_of_away_matches > 0
+          where: number_of_away_wins > 0
       - dbt_utils.expression_is_true:
-          expression: 'home_record.number_of_home_wins > 0'
+          expression: number_of_home_wins > 0
           where: home_pts > 0
       - dbt_utils.expression_is_true:
-          expression: 'away_record.number_of_away_wins > 0'
+          expression: number_of_away_wins > 0
           where: away_pts > 0
         
         

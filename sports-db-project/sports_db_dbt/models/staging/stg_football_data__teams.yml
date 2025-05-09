@@ -1,5 +1,8 @@
 models:
   - name: stg_football_data__teams
+    config:
+      contract:
+        enforced: true
     columns:
       - name: team_id
         description: PK, Team ID as found in the source (football-data API)
@@ -35,12 +38,13 @@ models:
           - relationships:
               to: ref('stg_football_data__areas')
               field: country_name
-      - name: team_adress
+      - name: team_address
         description: Team's headquarters address
         data_type: VARCHAR
         # No data tests for now. Not needed for analytical purposes
       - name: website_url
         description: Team's website URL
+        data_type: VARCHAR
         # No data tests for now. Not needed for analytical purposes
       - name: foundation_year_date
         description: Year of foundation of the club. Set to 1st of January because only the foundation year is provided by the source
@@ -49,11 +53,11 @@ models:
           - not_null
       - name: team_colors
         description: Main colors of the team
-        data_type: ARRAY<VARCHAR>
+        data_type: VARCHAR[]
         # No data tests for now. Not needed for analytical purposes
       - name: arena_name
         description: Name of the team's arena  
-        data_type: ARRAY<VARCHAR>
+        data_type: VARCHAR
         # No data tests for now. Not needed for analytical purposes
       - name: main_competition_id
         description: FK, ID of the teams main competition, as found in the source (football-data API)
@@ -65,10 +69,10 @@ models:
               field: competition_id
       - name: running_competitions_ids
         description: FK, IDs of all competitions currently played by the team (currently = At the time of the given season)
-        data_type: ARRAY<VARCHAR>
+        data_type: VARCHAR[]
       - name: player_ids
         description: FK, IDs of all players in the team for a given season
-        data_type: ARRAY<VARCHAR>
+        data_type: VARCHAR[]
       - name: coach_id
         description: FK, ID of the coach of the team
         data_type: VARCHAR
@@ -96,9 +100,9 @@ models:
     tests:
       - dbt_utils.expression_is_true:
           # At first, I wanted a relationships test with the competitions table, but the API only allows for the extraction of 12 competitions
-          expression: 'LEN(running_competitions_ids) > 0' # LEN() is DuckDB equivalent to BigQuery ARRAY_LENGTH() 
+          expression: LEN(running_competitions_ids) > 0 # LEN() is DuckDB equivalent to BigQuery ARRAY_LENGTH() 
       - dbt_utils.expression_is_true:
-          expression: 'LEN(player_ids) >= 11' # A team cannot have less than 11 players
+          expression: LEN(player_ids) >= 11 # A team cannot have less than 11 players
       - dbt_expectations.expect_column_pair_values_A_to_be_greater_than_B:
           column_A: coach_contract_end_date
           column_B: coach_contract_start_date

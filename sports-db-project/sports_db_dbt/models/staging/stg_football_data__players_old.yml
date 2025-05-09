@@ -1,5 +1,8 @@
 models:
   - name: stg_football_data__players_old
+    config:
+      contract:
+        enforced: true
     columns:
       - name: player_id
         description: PK, ID of the player, as found in the source (football-data API)

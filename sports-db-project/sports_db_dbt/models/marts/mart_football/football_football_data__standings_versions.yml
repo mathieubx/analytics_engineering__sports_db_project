@@ -1,5 +1,8 @@
 models:
   - name: football_football_data__standings_versions
+    config:
+      contract:
+        enforced: true
     columns:
       - name: standings_version_id
         description: Unique ID of the version of the standings. Unicity is based on a combination of start_date, team, and competition
@@ -29,7 +32,7 @@ models:
               qualify: ROW_NUMBER() OVER(PARTITION BY team_id, competition_id ORDER BY version_start_at DESC) != 1 
       - name: team_id
         description: ID of the team
-        date_type: VARCHAR
+        data_type: VARCHAR
         data_tests: 
           - not_null
           - relationships:
@@ -67,7 +70,7 @@ models:
       ## Number of wins, draws, loss
       - name: number_of_wins
         description: Number of matches won until this version, in this competition and season
-        data_type: INTEGER
+        data_type: BIGINT
         data_tests:
           - not_null # Since a version is created after a match ends, it can never be null
           - dbt_utils.accepted_range:
@@ -75,7 +78,7 @@ models:
               max_value: '{{ var("max_number_of_matches") }}'
       - name: number_of_draws
         description: Number of matches that ended up in a draw until this version, in this competition and season
-        data_type: INTEGER
+        data_type: BIGINT
         data_tests:
           - not_null 
           - dbt_utils.accepted_range:
@@ -83,7 +86,7 @@ models:
               max_value: '{{ var("max_number_of_matches") }}'
       - name: number_of_losses
         description: Number of matches lost until this version, in this competition and season
-        data_type: INTEGER
+        data_type: BIGINT
         data_tests:
           - not_null 
           - dbt_utils.accepted_range:
@@ -93,12 +96,54 @@ models:
       ## Number of pts
       - name: home_pts
         description: Number of points won at home so far
-        data_type: INTEGER
+        data_type: HUGEINT
         data_tests:
           - not_null 
           - dbt_utils.accepted_range:
               min_value: 0
-              max_value: '{{ var("max_number_of_pts") }}'
+              max_value: '{{ var("max_number_of_pts") }}/2' # Because teams play half of their games at home
+      - name: away_pts
+        description: Number of points won away so far
+        data_type: HUGEINT
+        data_tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              min_value: 0
+              max_value: '{{ var("max_number_of_pts") }}/2' # Because teams play half of their games away
+      - name: total_pts
+        description: Total number of points won so far
+        data_type: HUGEINT
+        data_tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              min_value: 0
+              max_value: '{{ var("max_number_of_pts") }}'       
+
+      ## Number of goals scored, conceded and total goals (the max_value of accepted ranges are arbitrary)
+      - name: number_of_goals_scored
+        description: Number of goals score by the team so far in the competition
+        data_type: HUGEINT
+        data_tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              min_value: 0
+              max_value: '{{ var("max_number_of_matches") }}*10' # Which would mean the team has scored 10 goals per match whole season long        
+      - name: number_of_goals_conceded
+        description: Number of goals conceded by the team so far in the competition
+        data_type: HUGEINT
+        data_tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              min_value: 0
+              max_value: '{{ var("max_number_of_matches") }}*10' # Which would mean the team has conceded 10 goals per match whole season long 
+      - name: total_number_of_goals_in_matches
+        description: Total number of goals (scored + conceded) in the team's matches so far in the competition
+        data_type: HUGEINT
+        data_tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              min_value: 0
+              max_value: '{{ var("max_number_of_matches") }}*20' # Which would mean the team has conceded 10 goals per match whole season long 
 
     tests:
       - dbt_utils.unique_combination_of_columns:
@@ -114,5 +159,7 @@ models:
           end_at: version_end_at
           id_column: standings_version_id
       - dbt_utils.expression_is_true:
-          expression: 'total_pts > 0'
+          expression: total_pts > 0
           where: number_of_wins + number_of_draws > 0
+      - dbt_utils.expression_is_true:
+          expression: home_pts + away_pts = total_pts

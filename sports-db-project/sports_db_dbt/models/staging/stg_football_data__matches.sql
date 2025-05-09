@@ -23,7 +23,7 @@ referees_ids AS (
     FROM (
         SELECT
             CAST(id AS VARCHAR) AS match_id, 
-            UNNEST(referees).id AS referee_id, 
+            CAST(UNNEST(referees).id AS VARCHAR) AS referee_id, 
         FROM filtered_matches
     )
     GROUP BY 1    
@@ -39,7 +39,12 @@ casted_properties AS (
         CAST(filtered_matches.homeTeam.id AS VARCHAR) AS home_team_id,
         CAST(filtered_matches.awayTeam.id AS VARCHAR) AS away_team_id,
         referees_ids.referees_ids,
-        REPLACE(LOWER(CAST(filtered_matches.winner AS VARCHAR)),'_', ' ') AS winner,
+        CASE
+            WHEN CAST(filtered_matches.winner AS VARCHAR) = 'HOME_TEAM' THEN 'home'
+            WHEN CAST(filtered_matches.winner AS VARCHAR) = 'AWAY_TEAM' THEN 'away'
+            WHEN CAST(filtered_matches.winner AS VARCHAR) = 'DRAW' THEN 'draw'
+            ELSE NULL
+        END AS winner,
         LOWER(CAST(filtered_matches.duration AS VARCHAR)) AS duration_type,
         CAST(filtered_matches.full_time.home AS INTEGER) AS full_time_home_score,
         CAST(filtered_matches.full_time.away AS INTEGER) AS full_time_away_score,

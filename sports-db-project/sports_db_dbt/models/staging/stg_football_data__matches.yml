@@ -1,5 +1,8 @@
 models:
   - name: stg_football_data__matches
+    config:
+      contract:
+        enforced: true
     columns: 
       - name: match_id
         description: PK, ID of the match, as found in the source (football-data API)
@@ -51,7 +54,7 @@ models:
               field: team_id
       - name: referees_ids
         description: IDs of the referees, as found in the source (football-data API)
-        data_type: ARRAY<VARCHAR>
+        data_type: VARCHAR[]
         # For now, we don't test referees because we will not really need them
       - name: winner
         description: Who won the match?
@@ -60,7 +63,7 @@ models:
           - not_null:
               where: status = 'finished'
           - accepted_values:
-              values: ['home team', 'away team', 'draw']
+              values: ['home', 'away', 'draw']
       - name: duration_type
         description: Type of end of the match. Note that "Lately there are some issues with extratime/penalty score sync to the free tier", according to Daniel, the man who built the API (latest update on 2025/04/08). These issues imply that some matches that finished in extra time might have a duration_type = "regular"  
         data_type: VARCHAR
@@ -124,19 +127,24 @@ models:
           - relationships:
               to: ref('stg_football_data__seasons')
               field: season_id
+      - name: last_updated_at
+        description: Last time the matches were extracted from the football-data API
+        data_type: TIMESTAMP
+        data_tests:
+          - not_null
+          - dbt_utils.expression_is_true:
+              expression: '< current_date' 
 
     tests:
     - dbt_utils.expression_is_true:
-        expression: "match_at > CAST('2020-01-01T00:00:00' AS TIMESTAMP)" # Just to spot weird dates
+        expression: match_at > CAST('2020-01-01T00:00:00' AS TIMESTAMP) # Just to spot weird dates
     - dbt_utils.expression_is_true:
-        expression: "match_at < last_updated_at"
-        config:
-          where: status = 'finished'
+        expression: match_at < last_updated_at
+        where: status = 'finished'
     - dbt_utils.expression_is_true:
-        expression: "status = 'finished'"
-        config:
-          where: CAST(match_at AS DATE) < last_updated_at - INTERVAL 24 HOURS # -- all matches up to 24 hours before the last extraction must be "finished". Matches in the last 24 hours, depending on when they are scheduled, may be ongoing at the time of extraction.
+        expression: status = 'finished'
+        where: CAST(match_at AS DATE) < last_updated_at - INTERVAL 24 HOURS # -- all matches up to 24 hours before the last extraction must be "finished". Matches in the last 24 hours, depending on when they are scheduled, may be ongoing at the time of extraction.
     - dbt_utils.expression_is_true:
-        expression: "matchday_number > 0"
+        expression: matchday_number > 0
     - dbt_utils.expression_is_true:
-        expression: "home_team_id != away_team_id"
+        expression: home_team_id != away_team_id

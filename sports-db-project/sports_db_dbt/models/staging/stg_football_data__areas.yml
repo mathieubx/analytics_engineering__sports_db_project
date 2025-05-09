@@ -1,5 +1,8 @@
 models: 
   - name: stg_football_data__areas
+    config:
+      contract:
+        enforced: true
     columns:
       - name: country_id
         description: PK, Unique identifier of the country

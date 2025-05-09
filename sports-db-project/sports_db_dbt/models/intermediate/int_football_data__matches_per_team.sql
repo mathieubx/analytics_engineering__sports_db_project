@@ -20,7 +20,7 @@ away_matches AS (
     FROM matches
 ), 
 
-matches_per_team AS (
+home_and_away_matches AS (
     SELECT
         *
     FROM home_matches
@@ -28,11 +28,34 @@ matches_per_team AS (
     SELECT 
         *
     FROM away_matches
+),
+
+matches_per_team AS (
+    SELECT DISTINCT -- Filter duplicates from source
+        {{ surrogate_key('match', 'home_and_away_matches.team_id || home_and_away_matches.match_id') }} AS team_match_id,
+        home_and_away_matches.match_id,
+        home_and_away_matches.competition_id,
+        home_and_away_matches.team_id,
+        home_and_away_matches.team_playing_location,
+        home_and_away_matches.status AS match_status,
+        CASE 
+		    WHEN home_and_away_matches.team_playing_location = matches.winner THEN 'win'
+		    WHEN matches.winner = 'draw' THEN 'draw'
+		    WHEN home_and_away_matches.team_playing_location != matches.winner THEN 'loss'
+		    ELSE NULL
+	    END AS team_result,
+        home_and_away_matches.match_at,
+    FROM home_and_away_matches
+    LEFT JOIN matches USING (match_id)
 )
 
-SELECT DISTINCT
-    {{ surrogate_key('match', 'team_id || match_id') }} AS team_match_id,
+SELECT
+    team_match_id,
     match_id,
+    competition_id,
     team_id,
     team_playing_location,
+    match_at,
+    match_status,
+    team_result,
 FROM matches_per_team

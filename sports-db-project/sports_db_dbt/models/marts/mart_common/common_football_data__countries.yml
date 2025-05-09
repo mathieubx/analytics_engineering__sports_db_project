@@ -1,5 +1,8 @@
 models:
   - name: common_football_data__countries
+    config:
+      contract:
+        enforced: true    
     columns:
       - name: country_id
         description: PK, Unique identifier of the country

@@ -1,5 +1,8 @@
 models:
   - name: stg_football_data__coaches
+    config:
+      contract:
+        enforced: true    
     columns:
       - name: coach_id
         description: ID of the coach as found in the source system (football-data API)

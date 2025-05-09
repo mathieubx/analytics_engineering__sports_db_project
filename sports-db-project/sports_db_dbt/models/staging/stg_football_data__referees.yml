@@ -1,5 +1,8 @@
 models:
   - name: stg_football_data__referees
+    config:
+      contract:
+        enforced: true
     columns:
       - name: referee_id
         description: PK, ID of the referee, as found in the source (football-data API)

@@ -1,5 +1,8 @@
 models:
   - name: int_football_data__matches_per_team
+    config:
+      contract:
+        enforced: true
     columns:
       - name: team_match_id
         description: PK, surrogate key that uniquely identifies a combination of match and team. 
@@ -23,6 +26,14 @@ models:
           - relationships:
               to: ref('stg_football_data__teams')
               field: team_id
+      - name: competition_id
+        description: FK, ID of the team
+        data_type: VARCHAR
+        data_tests:
+          - not_null
+          - relationships:
+              to: ref('stg_football_data__competitions')
+              field: competition_id
       - name: team_playing_location
         description: Is the match home or away for the team?
         data_type: VARCHAR
@@ -34,3 +45,29 @@ models:
             # There should be the same number of home and away matches in this table.
               x_value: 'home' 
               y_value: 'away'
+      - name: match_at
+        description: When the match is played
+        data_type: TIMESTAMP
+        date_tests:
+          # Other tests are already set up in stg_football_data__matches
+          - not_null
+      - name: team_result
+        description: Result of the team for this match (either win, loss or draw).
+        data_type: VARCHAR
+        data_tests:
+          - accepted_values:
+              values: ['win', 'draw', 'loss']
+          - not_null:
+              where: match_status = 'finished'
+      - name: match_status
+        description: Status of the match
+        data_type: VARCHAR
+        data_tests: 
+          - not_null
+          - accepted_values:
+              values: ['timed', 'finished', 'paused','in play']
+
+    tests:
+      - dbt_utils.expression_is_true:
+          expression: match_status = 'finished'
+          where: team_result IS NOT NULL

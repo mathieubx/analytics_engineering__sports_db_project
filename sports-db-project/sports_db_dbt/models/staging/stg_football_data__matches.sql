@@ -4,12 +4,20 @@ matches AS (
     SELECT * FROM {{ source('sports_db_raw', 'football_data__matches') }}
 ),
 
+deduplicated_matches AS (
+    SELECT
+        * 
+    FROM matches
+    -- deduplicate on id, based on lastUpdated date
+    QUALIFY ROW_NUMBER() OVER (PARTITION BY id ORDER BY lastUpdated DESC) = 1
+),
+
 filtered_matches AS (
     -- This table is a current view. 
     -- The source contains South American matches from the previous season that need to be filtered out 
     SELECT 
         *
-    FROM matches
+    FROM deduplicated_matches
     WHERE NOT (
         competition.id IN (2152, 2013) -- Ids of Copa Libertadores and Brazilian Serié A 
         AND EXTRACT ( YEAR FROM (CAST(utcDate AS DATE)) ) == EXTRACT(YEAR FROM current_date) - 1 -- Matches in 2024

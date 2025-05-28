@@ -1,0 +1,43 @@
+# === ENVIRONNEMENT VIRTUEL ===
+venv/
+.venv/
+env/
+
+# === LOGS AIRFLOW ===
+logs/
+*/logs/
+*/*/logs/
+*.log
+
+# === FICHIERS COMPILES PYTHON ===
+__pycache__/
+*.py[cod]
+*$py.class
+
+# === FICHIERS TEMPORAIRES ===
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+
+# === IDEs / ÉDITEURS ===
+.vscode/
+.idea/
+
+# === JUPYTER NOTEBOOK CHECKPOINTS ===
+.ipynb_checkpoints/
+
+# === DATABASE TEMP FILES ===
+*.db
+*.sqlite
+*.duckdb
+
+# === SECRETS / CONFIGURATION PRIVÉE ===
+config/secrets.toml
+config/*.toml
+config/*.json
+config/*.env
+config/*.ini
+
+# Si tu veux ignorer tout le dossier config (à adapter selon tes besoins)
+# config/

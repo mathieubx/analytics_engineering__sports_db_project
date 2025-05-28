@@ -11,3 +11,5 @@ sources:
       description: "Teams table as extracted from the football-data API"
     - name: football_data__matches
       description: "Matches table as extracted from the football-data API"
+    - name: football_data__players
+      description: "Players table as extracted from the football-data API"

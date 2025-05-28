@@ -1,0 +1,21 @@
+# Pipeline requirements
+requests
+pandas
+duckdb
+toml
+datetime
+ipykernel
+seaborn
+# apache-airflow
+# time
+# json
+# ast
+
+# dbt requirements
+dbt-core
+dbt-duckdb
+
+# importing packages requirements
+# importlib
+# subprocess
+# sys

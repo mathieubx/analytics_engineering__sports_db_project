@@ -65,10 +65,125 @@ models:
               to: ref('stg_football_data__competitions')
               field: competition_name
 
+      # Version team/competition statistics
+      
+      ## Version Number of wins, draws, loss
+
+      - name: version_number_of_wins
+        description: Number of wins for the team in the version 
+        data_type: INTEGER
+        data_tests: 
+          - not_null
+          - dbt_utils.accepted_range:
+              min_value: 0
+              max_value: 1
+              inclusive: true
+          - dbt_utils.expression_is_true:
+              expression: '= 1'
+              where: version_total_pts = 3
+      - name: version_number_of_draws
+        description: Number of draws for the team in the version 
+        data_type: INTEGER
+        data_tests: 
+          - not_null
+          - dbt_utils.accepted_range:
+              min_value: 0
+              max_value: 1
+              inclusive: true
+          - dbt_utils.expression_is_true:
+              expression: '= 1'
+              where: version_total_pts = 1
+      - name: version_number_of_losses
+        description: Number of draws for the team in the version 
+        data_type: INTEGER
+        data_tests: 
+          - not_null
+          - dbt_utils.accepted_range:
+              min_value: 0
+              max_value: 1
+              inclusive: true
+          - dbt_utils.expression_is_true:
+              expression: '= 1'
+              where: version_total_pts = 0
+
+      ## Version number of pts
+
+      - name: version_home_pts
+        description: Number of home points won in the version
+        data_type: INTEGER
+        data_tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              min_value: 0
+              max_value: 3
+              inclusive: true
+          - dbt_utils.expression_is_true:
+              expression: '= 3'
+              where: version_number_of_wins = 1 AND version_away_pts = 0
+      - name: version_away_pts
+        description: Number of away points won in the version
+        data_type: INTEGER
+        data_tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              min_value: 0
+              max_value: 3
+              inclusive: true
+          - dbt_utils.expression_is_true:
+              expression: '= 3'
+              where: version_number_of_wins = 1 AND version_home_pts = 0
+      - name: version_total_pts
+        description: Number of points won in the version
+        data_type: INTEGER
+        data_tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              min_value: 0
+              max_value: 3
+              inclusive: true
+          - dbt_utils.expression_is_true:
+              expression: '= 3'
+              where: version_number_of_wins = 1      
+      
+      ## Version number of goals scored, conceded, in match
+      - name: version_number_of_goals_scored
+        description: Number of goals scored by the team in this version's match
+        data_type: INTEGER
+        data_tests: 
+          - not_null
+          - dbt_utils.accepted_range:
+              min_value: 0
+              max_value: 20
+              inclusive: true
+          - dbt_utils.expression_is_true:
+              expression: '> version_number_of_goals_conceded'
+              where: version_number_of_wins = 1
+      - name: version_number_of_goals_conceded
+        description: Number of goals conceded by the team in this version's match
+        data_type: INTEGER
+        data_tests: 
+          - not_null
+          - dbt_utils.accepted_range:
+              min_value: 0
+              max_value: 20
+              inclusive: true
+          - dbt_utils.expression_is_true:
+              expression: '> version_number_of_goals_scored'
+              where: version_number_of_losses = 1
+      - name: version_total_number_of_goals_in_match
+        description: Number of goals scored by both teams in this version's match of the team
+        data_type: INTEGER
+        data_tests: 
+          - not_null
+          - dbt_utils.accepted_range:
+              min_value: 0
+              max_value: 20
+              inclusive: true
+
       # Running team/competition statistics
       
-      ## Number of wins, draws, loss
-      - name: number_of_wins
+      ## Running number of wins, draws, loss
+      - name: running_number_of_wins
         description: Number of matches won until this version, in this competition and season
         data_type: BIGINT
         data_tests:
@@ -76,7 +191,7 @@ models:
           - dbt_utils.accepted_range:
               min_value: 0
               max_value: '{{ var("max_number_of_matches") }}'
-      - name: number_of_draws
+      - name: running_number_of_draws
         description: Number of matches that ended up in a draw until this version, in this competition and season
         data_type: BIGINT
         data_tests:
@@ -84,7 +199,7 @@ models:
           - dbt_utils.accepted_range:
               min_value: 0
               max_value: '{{ var("max_number_of_matches") }}'
-      - name: number_of_losses
+      - name: running_number_of_losses
         description: Number of matches lost until this version, in this competition and season
         data_type: BIGINT
         data_tests:
@@ -93,8 +208,8 @@ models:
               min_value: 0
               max_value: '{{ var("max_number_of_matches") }}'
 
-      ## Number of pts
-      - name: home_pts
+      ## Running number of pts
+      - name: running_home_pts
         description: Number of points won at home so far
         data_type: HUGEINT
         data_tests:
@@ -102,7 +217,7 @@ models:
           - dbt_utils.accepted_range:
               min_value: 0
               max_value: '{{ var("max_number_of_pts") }}/2' # Because teams play half of their games at home
-      - name: away_pts
+      - name: running_away_pts
         description: Number of points won away so far
         data_type: HUGEINT
         data_tests:
@@ -110,7 +225,7 @@ models:
           - dbt_utils.accepted_range:
               min_value: 0
               max_value: '{{ var("max_number_of_pts") }}/2' # Because teams play half of their games away
-      - name: total_pts
+      - name: running_total_pts
         description: Total number of points won so far
         data_type: HUGEINT
         data_tests:
@@ -119,8 +234,8 @@ models:
               min_value: 0
               max_value: '{{ var("max_number_of_pts") }}'       
 
-      ## Number of goals scored, conceded and total goals (the max_value of accepted ranges are arbitrary)
-      - name: number_of_goals_scored
+      ## Running number of goals scored, conceded and total goals (the max_value of accepted ranges are arbitrary)
+      - name: running_number_of_goals_scored
         description: Number of goals score by the team so far in the competition
         data_type: HUGEINT
         data_tests:
@@ -128,7 +243,7 @@ models:
           - dbt_utils.accepted_range:
               min_value: 0
               max_value: '{{ var("max_number_of_matches") }}*10' # Which would mean the team has scored 10 goals per match whole season long        
-      - name: number_of_goals_conceded
+      - name: running_number_of_goals_conceded
         description: Number of goals conceded by the team so far in the competition
         data_type: HUGEINT
         data_tests:
@@ -136,7 +251,7 @@ models:
           - dbt_utils.accepted_range:
               min_value: 0
               max_value: '{{ var("max_number_of_matches") }}*10' # Which would mean the team has conceded 10 goals per match whole season long 
-      - name: total_number_of_goals_in_matches
+      - name: running_total_number_of_goals_in_matches
         description: Total number of goals (scored + conceded) in the team's matches so far in the competition
         data_type: HUGEINT
         data_tests:
@@ -159,7 +274,7 @@ models:
           end_at: version_end_at
           id_column: standings_version_id
       - dbt_utils.expression_is_true:
-          expression: total_pts > 0
-          where: number_of_wins + number_of_draws > 0
+          expression: running_total_pts > 0
+          where: running_number_of_wins + running_number_of_draws > 0
       - dbt_utils.expression_is_true:
-          expression: home_pts + away_pts = total_pts
+          expression: running_home_pts + running_away_pts = running_total_pts

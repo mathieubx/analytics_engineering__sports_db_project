@@ -1,0 +1,131 @@
+models:
+  - name: football_football_data__streaks
+    description: |-
+      Precisions on the model: 
+
+      (1) Why is the streak_end_at computed with 'MAX(is_team_last_match) = 1' as the first condition? 
+      Well, the MAX(...) = 1 is forced by the fact that the SELECT statement is grouped. I just want to flag is a streak is an ongoing one.
+      I used this trick because, indeed, MAX(is_team_last_match) returns 1 when the group of streak_id, team_id, and competition_id has a 1 for this column in it (which means that the streaks contains the teams' last match, and therefore that it's an ongoing streak.)
+     
+    config:
+      contract:
+        enforced: true
+    columns:
+      - name: streak_id
+        description: PK, Streak unique identifier
+        data_type: VARCHAR
+        data_tests:
+          - unique
+          - not_null
+      - name: competition_id
+        description: ID of the competition
+        data_type: VARCHAR
+        data_tests:
+          - not_null
+          - relationships:
+              to: ref('stg_football_data__competitions')
+              field: competition_id
+      - name: competition_name
+        description: Name of the competition
+        data_type: VARCHAR
+        data_tests:
+          - not_null
+          - relationships:
+              to: ref('stg_football_data__competitions')
+              field: competition_name
+      - name: team_id
+        description: ID of the team
+        data_type: VARCHAR
+        data_tests:
+          - not_null
+          - relationships:
+              to: ref('stg_football_data__teams')
+              field: team_id
+      - name: team_name
+        description: Name of the team
+        data_type: VARCHAR
+        data_tests:
+          - not_null
+          - relationships:
+              to: ref('stg_football_data__teams')
+              field: team_name
+      - name: streak_match_ids
+        description: match_ids of the matches the streak is made of
+        data_type: VARCHAR[]
+        data_tests:
+          - array_relationships:
+              to: ref('stg_football_data__matches')
+              field: match_id
+          - min_array_length:
+              array_length: 0
+              or_equal: false
+      - name: streak_match_ats
+        description: When the matches that compose the streak were played (these are the match_at timestamps)
+        data_type: TIMESTAMP[]
+        data_tests:
+          - min_array_length:
+              array_length: 0
+              or_equal: false
+      - name: streak_number_of_matches
+        description: Number of matches in streak. Only counts finished matches
+        data_type: BIGINT
+        data_tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              min_value: 1
+              max_value: 20
+              inclusive: true
+      - name: streak_type
+        description: Is it a win streak, a loss streak or a draw streak?
+        data_type: VARCHAR
+        data_tests:
+          - not_null
+          - accepted_values:
+              values: ['win', 'draw', 'loss']
+      - name: streak_start_match_id
+        description: ID of the first match of the streak
+        data_type: VARCHAR
+        data_tests:
+          - not_null
+          - relationships:
+              to: ref('stg_football_data__matches')
+              field: match_id
+      - name: streak_end_match_id
+        description: ID of the last match of the streak
+        data_type: VARCHAR
+        data_tests:
+          - not_null
+          - relationships:
+              to: ref('stg_football_data__matches')
+              field: match_id
+      - name: streak_start_at
+        description: When the first match of the streak started
+        data_type: TIMESTAMP
+        data_tests:
+          - not_null
+      - name: streak_end_at
+        description: When the last match of the streak ended. NULL if the last match of the streak is also the last match of the team in the competition
+        data_type: TIMESTAMP
+    
+    tests:
+      - dbt_utils.expression_is_true:
+          # Sending an alarm if a streak is weirdly long
+          expression: ARRAY_LENGTH(streak_match_ids) < 20  
+      - dbt_utils.expression_is_true:
+          expression: ARRAY_LENGTH(streak_match_ids) = streak_number_of_matches  
+      - dbt_utils.expression_is_true:
+          # Checks that there are no streaks where the indicated streak_start_match_id would not be part of the streak
+          expression: streak_start_match_id IN streak_match_ids
+      - dbt_utils.expression_is_true:
+          # Checks that there are no streaks where the indicated streak_end_match_id would not be part of the streak
+          expression: streak_end_match_id IN streak_match_ids
+      - dbt_expectations.expect_column_pair_values_A_to_be_greater_than_B:
+          column_A: streak_end_at
+          column_B: streak_start_at
+          or_equal: true # For streaks of 1
+          row_condition: streak_end_at IS NOT NULL
+      - dbt_utils.expression_is_true:
+          expression: streak_start_at < current_date
+      - dbt_utils.expression_is_true:
+          expression: streak_end_at < current_date
+          where: streak_end_at IS NOT NULL

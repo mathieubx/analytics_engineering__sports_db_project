@@ -1,0 +1,8 @@
+sports_db:
+  target: dev
+  outputs:
+    dev:
+      type: duckdb
+      path: /opt/airflow/duckdb/sports_db.duckdb
+      threads: 1
+      schema: dev

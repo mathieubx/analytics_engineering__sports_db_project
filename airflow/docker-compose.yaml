@@ -79,6 +79,7 @@ x-airflow-common:
     - ${AIRFLOW_PROJ_DIR:-.}/plugins:/opt/airflow/plugins
     - C:/Users/mbmbm/matbx-data/sports-db-project/duckdb-databases:/opt/airflow/duckdb # On monte la base de données sur le tous les container pour pouvoir y accéder et la mettre à jour via Airflow
     - C:/Users/mbmbm/matbx-data/sports-db-project/sports_db_dbt:/opt/airflow/dbt
+    - ${AIRFLOW_PROJ_DIR:-.}/config/.dbt:/home/airflow/.dbt
   user: "${AIRFLOW_UID:-50000}:0"
   depends_on:
     &airflow-common-depends-on

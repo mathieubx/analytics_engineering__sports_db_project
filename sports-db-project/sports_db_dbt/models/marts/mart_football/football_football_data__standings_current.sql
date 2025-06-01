@@ -5,16 +5,16 @@
 
 WITH 
 
+matches AS (
+	SELECT * FROM {{ ref("stg_football_data__matches") }}
+),
+
 teams AS (
 	SELECT * FROM {{ ref("stg_football_data__teams") }}
 ),
 
 competitions AS (
 	SELECT * FROM {{ ref("stg_football_data__competitions") }}
-),
-
-matches AS (
-	SELECT * FROM {{ ref("stg_football_data__matches") }}
 ),
 
 matches_with_pts AS (

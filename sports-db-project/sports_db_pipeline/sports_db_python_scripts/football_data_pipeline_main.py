@@ -124,8 +124,8 @@ matches_list = [] # Setting an empty list to store API calls results
 for index, period in ten_days_periods.iterrows():
     i = i + 1
     period_start_date = dt.strftime(period['start_date'], "%Y-%m-%d") # Format for inserting the date in the request's url
-    period_end_date = dt.strftime(period['end_date'] - datetime.timedelta(days = 1), "%Y-%m-%d") # Substracting 1 day to avoid duplicating last day of the period
-
+    period_end_date = dt.strftime(period['end_date'], "%Y-%m-%d") # Note that the end_date is also the first_date of the next period. This should lead to duplication in the API requests, but will not because the "dateTo" filter of the API is exclusive
+    
     # Making the actual requests
     url = f"https://api.football-data.org/v4/matches/?dateFrom={period_start_date}&dateTo={period_end_date}"
     try:

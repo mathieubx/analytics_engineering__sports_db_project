@@ -24,7 +24,7 @@ def extract_football_players():
     # Set up: import API credentials
     secrets=toml.load('/opt/airflow/config/secrets.toml')
     request_header=secrets['source']['football_data']['request_header']
-    api_key=secrets['source']['football_data']['api_key']
+    api_key=secrets['source']['football_data_players']['api_key']
 
     # Set up: store path to DuckDB database 
     database_path = '/opt/airflow/duckdb/sports_db.duckdb'
@@ -118,7 +118,7 @@ def extract_football_players():
 ###################################################################################################
 
 with DAG(
-    'elt_football_dag_players',
+    'elt_football__players',
     start_date = dt(2025,5,29),
     schedule = '0 0 1,11,21 * *',  # Extract players thrice a month
     catchup = False

@@ -64,6 +64,22 @@ models:
           - relationships:
               to: ref('stg_football_data__competitions')
               field: competition_name
+      - name: season_id
+        description: ID of the season
+        data_type: VARCHAR
+        data_tests:
+          - not_null
+          - relationships:
+              to: ref('football_football_data__seasons')
+              field: season_id
+      - name: season_name
+        description: Name of the season
+        data_type: VARCHAR
+        data_tests:
+          - not_null
+          - relationships:
+              to: ref('football_football_data__seasons')
+              field: season_name
 
       # Version team/competition statistics
       

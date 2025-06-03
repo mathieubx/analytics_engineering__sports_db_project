@@ -16,6 +16,10 @@ competitions AS (
 	SELECT * FROM {{ ref('stg_football_data__competitions') }}
 ),
 
+seasons AS (
+	SELECT * FROM {{ ref('football_football_data__seasons') }}
+),
+
 matches_per_team_with_matches_info AS (
 	SELECT
 		matches_per_team.match_id,
@@ -153,6 +157,8 @@ SELECT
 		teams.team_name,
 		placement_versions.competition_id,
 		competitions.competition_name,
+		placement_versions.season_id,
+		seasons.season_name,
 		-- Version number of wins, draws, losses
 		placement_versions.version_number_of_wins,
 		placement_versions.version_number_of_draws,
@@ -180,3 +186,4 @@ SELECT
 FROM placement_versions
 LEFT JOIN teams USING (team_id)
 LEFT JOIN competitions USING (competition_id)
+LEFT JOIN seasons ON placement_versions.season_id = seasons.season_id -- Using the ON clause to specify that the season_id is the one coming from placement_versions, since it also exists in the teams table

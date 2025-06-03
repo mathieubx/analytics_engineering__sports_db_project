@@ -1,0 +1,60 @@
+models:
+  - name: football_football_data__seasons
+    columns: 
+
+      - name: season_id
+        description: Unique ID of the season, as found in the football-data API
+        data_type: VARCHAR
+        data_tests:
+          - unique
+          - not_null
+          - relationships:
+              to: ref('stg_football_data__seasons')
+              field: season_id
+
+      - name: start_date
+        description: Start date of the season
+        data_type: DATE
+        data_tests:
+          - not_null
+          - relationships:
+              to: ref('stg_football_data__seasons')
+              field: start_date
+
+      - name: end_date
+        description: End date of the season
+        data_type: DATE
+        data_tests:
+          - not_null
+          - relationships:
+              to: ref('stg_football_data__seasons')
+              field: end_date
+
+      - name: competition_id
+        description: ID of the competition
+        data_type: VARCHAR
+        data_tests:
+          - not_null
+          - relationships:
+              to: ref('stg_football_data__competitions')
+              field: competition_id
+
+      - name: competition_name
+        description: Name of the competition
+        data_type: VARCHAR
+        data_tests:
+          - not_null
+          - relationships:
+              to: ref('stg_football_data__competitions')
+              field: competition_name
+
+      - name: season_name
+        description: Formatted name of the season (e.g. "Premier League 2022 - 2023")
+        data_type: VARCHAR
+        data_tests:
+          - not_null
+          - unique
+
+    tests:
+      - dbt_utils.expression_is_true:
+          expression: start_date < end_date

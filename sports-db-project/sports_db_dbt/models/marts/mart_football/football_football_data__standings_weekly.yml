@@ -1,0 +1,21 @@
+models:
+  - name: football_football_data__standings_weekly
+    description: A transposition of the standings versions, on a weekly basis. The temporality is the beginning of a week
+    columns:
+      - name: ranking
+        description: Ranking of the team at the beginning of each week
+        data_type: INTEGER
+        data_tests:
+          - dbt_utils.accepted_range:
+              min_value: 1
+              max_value: '{{var("max_number_of_teams")}}'
+              where: competition_id NOT IN ['2001', '2152'] # Champions League and Copa Libertadores
+    # Most columns are already tested in the table football_football_data__standings_versions, so we'll focus on some key tests
+    tests: 
+      # Testing the primary key
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - week_start_date
+            - team_id
+            - competition_id
+      

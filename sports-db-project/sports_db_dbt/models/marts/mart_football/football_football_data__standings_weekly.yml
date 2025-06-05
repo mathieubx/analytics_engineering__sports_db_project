@@ -18,4 +18,3 @@ models:
             - week_start_date
             - team_id
             - competition_id
-      

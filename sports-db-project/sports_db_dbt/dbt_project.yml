@@ -98,3 +98,4 @@ vars:
   max_number_of_matches: 46 # The highest number of matches played in a season per team is 46, in Championship
   max_number_of_pts: 138 # 3 pts*max_number_of_matches
   max_number_of_teams: 24 # Championship has the most teams
+  default_birth_date: CAST('1995-01-01' AS DATE) # In some occasions, API is wrong on birhtdates and the player's birthdate cannot be retrieved. In this case, we add a default birth date

@@ -33,8 +33,9 @@ matches_with_pts AS (
 		END AS away_team_pts,
 		*
 	FROM matches
-    WHERE status = 'finished' AND stage IN ('regular season', 'league stage') -- Don't account for playoffs (for instance in CL)
-),
+    WHERE status IN ('finished', 'awarded') AND stage NOT IN ('playoffs') -- Don't account for playoffs (for instance in CL)
+	-- Note that the 'awarded' status corresponds to a decision extern to the match setting the result. Let's say your fans burned the stadium, a commission could decide to award a 2-0 win to your opponent. 
+),	
 
 home_matches AS (
 	SELECT

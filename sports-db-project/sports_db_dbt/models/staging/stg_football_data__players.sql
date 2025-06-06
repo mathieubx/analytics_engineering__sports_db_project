@@ -9,7 +9,15 @@ SELECT
 	CAST(name AS VARCHAR) AS name,
 	CAST(firstName AS VARCHAR) AS first_name,
 	CAST(lastName AS VARCHAR) AS last_name,
-	CAST(dateOfBirth AS DATE) AS date_of_birth,
+	CASE 
+		WHEN id = 191106 THEN CAST('2005-01-04' AS DATE)
+		WHEN id = 191127 THEN CAST('1998-05-12' AS DATE)
+		WHEN id = 263454 THEN CAST('2007-05-09' AS DATE)
+		WHEN id = 170381 THEN CAST('1993-02-19' AS DATE)
+		WHEN id = 160790 THEN CAST('2004-04-06' AS DATE)
+		WHEN id = 191811 THEN {{ var('default_birth_date') }} -- Unknown so we set a default date
+		ELSE CAST(dateOfBirth AS DATE) 
+	END AS date_of_birth,
 	CAST(nationality AS VARCHAR) AS nationality,
 	CAST(section AS VARCHAR) AS section,
 	CAST(position AS VARCHAR) AS position,

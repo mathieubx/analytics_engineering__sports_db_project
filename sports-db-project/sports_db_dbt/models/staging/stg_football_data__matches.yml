@@ -61,7 +61,7 @@ models:
         data_type: VARCHAR
         data_tests:
           - not_null:
-              where: status = 'finished'
+              where: status IN ('finished', 'awarded')
           - accepted_values:
               values: ['home', 'away', 'draw']
       - name: duration_type
@@ -140,9 +140,9 @@ models:
         expression: match_at > CAST('2020-01-01T00:00:00' AS TIMESTAMP) # Just to spot weird dates
     - dbt_utils.expression_is_true:
         expression: match_at < last_updated_at
-        where: status = 'finished'
+        where: status IN ('finished', 'awarded')
     - dbt_utils.expression_is_true:
-        expression: status = 'finished'
+        expression: status IN ('finished', 'awarded')
         where: CAST(match_at AS DATE) < last_updated_at - INTERVAL 24 HOURS # -- all matches up to 24 hours before the last extraction must be "finished". Matches in the last 24 hours, depending on when they are scheduled, may be ongoing at the time of extraction.
     - dbt_utils.expression_is_true:
         expression: matchday_number > 0

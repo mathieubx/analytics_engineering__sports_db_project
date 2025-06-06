@@ -44,7 +44,7 @@ matches_per_team_with_matches_info AS (
 		END AS match_team_pts, -- The number of points won during a match
 	FROM matches_per_team
 	LEFT JOIN matches USING (match_id)
-	WHERE status = 'finished'
+	WHERE status IN ('finished', 'awarded') 
 	ORDER BY match_start_at
 ),
 

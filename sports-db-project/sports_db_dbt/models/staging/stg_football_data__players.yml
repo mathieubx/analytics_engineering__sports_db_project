@@ -10,22 +10,27 @@ models:
         data_tests:
           - unique
           - not_null
+
       - name: name
         description: Full name of the player
         data_type: VARCHAR
         data_tests:
           - not_null
+
       - name: first_name
         description: First name of the player
         data_type: VARCHAR
+
       - name: last_name
         description: Last name of the player
         data_type: VARCHAR
+
       - name: date_of_birth
         description: Player's date of birth
         data_type: DATE
         data_tests:
           - not_null
+
       - name: nationality
         description: Player's nationality
         data_type: VARCHAR
@@ -34,6 +39,7 @@ models:
           - relationships: 
               to: ref('stg_football_data__areas')
               field: country_name
+
       - name: section
         description: Section or category the player belongs to
         data_type: VARCHAR
@@ -41,6 +47,7 @@ models:
           - not_null
           - accepted_values:
               values: '{{ var("football_positions") }}'  
+      
       - name: position
         description: Player's position on the field
         data_type: VARCHAR
@@ -48,6 +55,7 @@ models:
           - not_null
           - accepted_values:
               values: '{{ var("football_positions") }}'  
+      
       - name: player_number
         description: Player's jersey number
         data_type: INTEGER
@@ -55,6 +63,7 @@ models:
           - dbt_utils.accepted_range:
               min_value: 0
               max_value: 100
+      
       - name: current_team_id
         description: Foreign key to the team the player currently belongs to
         data_type: VARCHAR
@@ -63,12 +72,15 @@ models:
           - relationships:
               to: ref('stg_football_data__teams')
               field: team_id
+      
       - name: contract_start_month
         description: Month when the player's contract started
         data_type: DATE
+      
       - name: contract_end_month
         description: Month when the player's contract ends
         data_type: DATE
+      
       - name: last_updated_at
         description: Timestamp of when the record was last updated
         data_type: DATETIME

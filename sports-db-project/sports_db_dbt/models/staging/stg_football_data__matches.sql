@@ -53,7 +53,7 @@ casted_properties AS (
             WHEN CAST(filtered_matches.winner AS VARCHAR) = 'DRAW' THEN 'draw'
             ELSE NULL
         END AS winner,
-        LOWER(CAST(filtered_matches.duration AS VARCHAR)) AS duration_type,
+        REPLACE(LOWER(CAST(filtered_matches.duration AS VARCHAR)), '_', ' ') AS duration_type,
         CAST(filtered_matches.full_time.home AS INTEGER) AS full_time_home_score,
         CAST(filtered_matches.full_time.away AS INTEGER) AS full_time_away_score,
         CAST(filtered_matches.half_time.home AS INTEGER) AS half_time_home_score,

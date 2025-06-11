@@ -20,11 +20,18 @@ seasons AS (
 	SELECT * FROM {{ ref('football_football_data__seasons') }}
 ),
 
+filtered_matches_per_team AS (
+	SELECT
+		* 
+	FROM matches_per_team 
+	WHERE match_stage IN ('regular season', 'league stage')
+),
+
 matches_per_team_with_matches_info AS (
 	SELECT
-		matches_per_team.match_id,
-		matches_per_team.team_id,
-		matches_per_team.team_playing_location,
+		filtered_matches_per_team.match_id,
+		filtered_matches_per_team.team_id,
+		filtered_matches_per_team.team_playing_location,
 		matches.competition_id,
 		matches.season_id,
 		matches.match_at AS match_start_at,
@@ -33,16 +40,16 @@ matches_per_team_with_matches_info AS (
 		matches.full_time_away_score AS away_score,
 		CASE
 			-- home matches
-			WHEN matches_per_team.team_playing_location = 'home' AND matches.full_time_home_score > matches.full_time_away_score THEN 3
-			WHEN matches_per_team.team_playing_location = 'home' AND matches.full_time_home_score = matches.full_time_away_score THEN 1
-			WHEN matches_per_team.team_playing_location = 'home' AND matches.full_time_home_score < matches.full_time_away_score THEN 0
+			WHEN filtered_matches_per_team.team_playing_location = 'home' AND matches.full_time_home_score > matches.full_time_away_score THEN 3
+			WHEN filtered_matches_per_team.team_playing_location = 'home' AND matches.full_time_home_score = matches.full_time_away_score THEN 1
+			WHEN filtered_matches_per_team.team_playing_location = 'home' AND matches.full_time_home_score < matches.full_time_away_score THEN 0
 			-- away matches
-			WHEN matches_per_team.team_playing_location = 'away' AND matches.full_time_away_score > matches.full_time_home_score THEN 3
-			WHEN matches_per_team.team_playing_location = 'away' AND matches.full_time_away_score = matches.full_time_home_score THEN 1
-			WHEN matches_per_team.team_playing_location = 'away' AND matches.full_time_away_score < matches.full_time_home_score THEN 0
+			WHEN filtered_matches_per_team.team_playing_location = 'away' AND matches.full_time_away_score > matches.full_time_home_score THEN 3
+			WHEN filtered_matches_per_team.team_playing_location = 'away' AND matches.full_time_away_score = matches.full_time_home_score THEN 1
+			WHEN filtered_matches_per_team.team_playing_location = 'away' AND matches.full_time_away_score < matches.full_time_home_score THEN 0
 			ELSE NULL
 		END AS match_team_pts, -- The number of points won during a match
-	FROM matches_per_team
+	FROM filtered_matches_per_team
 	LEFT JOIN matches USING (match_id)
 	WHERE status IN ('finished', 'awarded') 
 	ORDER BY match_start_at
@@ -146,43 +153,41 @@ placement_versions AS (
 	FROM matches_per_team_with_matches_info
 )
 
-SELECT 
-        
-    'standings_version' || '_' || md5( CAST( version_start_at || team_id || competition_id AS VARCHAR) )
- AS standings_version_id,
-        placement_versions.match_id,
-        placement_versions.version_start_at,
-		placement_versions.version_end_at,
-		placement_versions.team_id,
-		teams.team_name,
-		placement_versions.competition_id,
-		competitions.competition_name,
-		placement_versions.season_id,
-		seasons.season_name,
-		-- Version number of wins, draws, losses
-		placement_versions.version_number_of_wins,
-		placement_versions.version_number_of_draws,
-		placement_versions.version_number_of_losses,
-		-- Version number of home, away, total points won
-		placement_versions.version_home_pts,
-		placement_versions.version_away_pts,
-		placement_versions.version_total_pts,
-		-- Version number of goals scored, goals conceded and total goals
-		placement_versions.version_number_of_goals_scored,
-		placement_versions.version_number_of_goals_conceded,
-		placement_versions.version_total_number_of_goals_in_match,
-		-- Running number of wins, draws, losses
-		placement_versions.running_number_of_wins,
-		placement_versions.running_number_of_draws,
-		placement_versions.running_number_of_losses,
-		-- Running number of home, away, total points won
-		placement_versions.running_home_pts,
-		placement_versions.running_away_pts,
-		placement_versions.running_total_pts,
-		-- Running number of goals scored, goals conceded and total goals
-		placement_versions.running_number_of_goals_scored,
-		placement_versions.running_number_of_goals_conceded,
-		placement_versions.running_total_number_of_goals_in_matches,
+SELECT     
+	'standings_version' || '_' || md5( CAST( version_start_at || team_id || competition_id AS VARCHAR) ) AS standings_version_id,
+	placement_versions.match_id,
+	placement_versions.version_start_at,
+	placement_versions.version_end_at,
+	placement_versions.team_id,
+	teams.team_name,
+	placement_versions.competition_id,
+	competitions.competition_name,
+	placement_versions.season_id,
+	seasons.season_name,
+	-- Version number of wins, draws, losses
+	placement_versions.version_number_of_wins,
+	placement_versions.version_number_of_draws,
+	placement_versions.version_number_of_losses,
+	-- Version number of home, away, total points won
+	placement_versions.version_home_pts,
+	placement_versions.version_away_pts,
+	placement_versions.version_total_pts,
+	-- Version number of goals scored, goals conceded and total goals
+	placement_versions.version_number_of_goals_scored,
+	placement_versions.version_number_of_goals_conceded,
+	placement_versions.version_total_number_of_goals_in_match,
+	-- Running number of wins, draws, losses
+	placement_versions.running_number_of_wins,
+	placement_versions.running_number_of_draws,
+	placement_versions.running_number_of_losses,
+	-- Running number of home, away, total points won
+	placement_versions.running_home_pts,
+	placement_versions.running_away_pts,
+	placement_versions.running_total_pts,
+	-- Running number of goals scored, goals conceded and total goals
+	placement_versions.running_number_of_goals_scored,
+	placement_versions.running_number_of_goals_conceded,
+	placement_versions.running_total_number_of_goals_in_matches,
 FROM placement_versions
 LEFT JOIN teams USING (team_id)
 LEFT JOIN competitions USING (competition_id)

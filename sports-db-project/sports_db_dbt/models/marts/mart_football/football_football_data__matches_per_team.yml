@@ -99,6 +99,14 @@ models:
           - accepted_values:
               values: ['timed', 'finished', 'paused','in play']
       
+      - name: match_stage
+        description: Stage of the match
+        data_type: VARCHAR
+        data_tests: 
+          - not_null
+          - accepted_values:
+              values: ['regular season', 'league stage']
+
       - name: opponent_team_id
         description: ID of the opponent team
         data_type: VARCHAR

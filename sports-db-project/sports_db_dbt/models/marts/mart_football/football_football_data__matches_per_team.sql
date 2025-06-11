@@ -89,6 +89,7 @@ SELECT
     matches.match_month,
     matches.team_result,
     matches.match_status,
+    matches.match_stage,
     matches_with_opponent_info.opponent_team_id,
     matches_with_opponent_info.opponent_team_name,
     CAST(matches.home_pts AS INTEGER) AS home_pts, -- Forced to CAST, otherwise this column is returned as a DECIMAL 

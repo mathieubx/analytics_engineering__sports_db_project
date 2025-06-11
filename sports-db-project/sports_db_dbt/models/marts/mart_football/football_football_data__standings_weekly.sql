@@ -1,7 +1,22 @@
 WITH 
 
 standings_versions AS (
-    SELECT * FROM {{ ref('football_football_data__standings_versions') }} 
+    -- The end date of the weekly standings is a bit tricky. We need to provide an end date to the current version so that it appears in the final result
+    -- Because the join wants the week_start_date to be **within** the start_date and end_date of a version.
+    SELECT 
+    	* EXCLUDE(version_end_at),
+	    IF(
+        -- First, we spot the current version
+	        ROW_NUMBER() OVER(
+	                PARTITION BY team_id, competition_id, season_id
+	                ORDER BY version_start_at DESC
+	        ) = 1,
+	        -- If it's the current version, we simply add 1 week as an artificial version_end_at
+	        version_start_at + INTERVAL 1 WEEK,
+	        -- Else:
+	        version_end_at
+	     ) AS version_end_at
+    FROM {{ ref('football_football_data__standings_versions') }}
 ),
 
 calendar AS (

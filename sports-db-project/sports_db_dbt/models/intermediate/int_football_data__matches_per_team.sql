@@ -38,6 +38,7 @@ matches_per_team AS (
         home_and_away_matches.team_id,
         home_and_away_matches.team_playing_location,
         home_and_away_matches.status AS match_status,
+        home_and_away_matches.stage AS match_stage,
         CASE 
 		    WHEN home_and_away_matches.team_playing_location = matches.winner THEN 'win'
 		    WHEN matches.winner = 'draw' THEN 'draw'
@@ -57,5 +58,6 @@ SELECT
     team_playing_location,
     match_at,
     match_status,
+    match_stage,
     team_result,
 FROM matches_per_team

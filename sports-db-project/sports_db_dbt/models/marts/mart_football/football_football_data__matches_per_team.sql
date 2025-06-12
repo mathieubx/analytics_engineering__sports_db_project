@@ -25,21 +25,25 @@ matches AS (
     SELECT
         *,
         teams.team_name,
+        teams.logo_url AS team_logo_url,
         competitions.competition_name,
         CAST(DATE_TRUNC('MONTH', matches_per_team.match_at) AS TIMESTAMP) AS match_month,
         CASE
+            WHEN matches_per_team.competition_id = '2001' AND matches_per_team.match_stage != 'league stage' THEN NULL -- Playoffs in CL do not have a notion of pts
             WHEN matches_per_team.team_playing_location = 'home' AND matches_per_team.match_status = 'finished' AND matches_per_team.team_result = 'win' THEN 3
             WHEN matches_per_team.team_playing_location = 'home' AND matches_per_team.match_status = 'finished' AND matches_per_team.team_result = 'draw' THEN 1
             WHEN matches_per_team.team_playing_location = 'home' AND matches_per_team.match_status = 'finished' AND matches_per_team.team_result = 'loss' THEN 0
             ELSE 0.
         END AS home_pts,
         CASE
+            WHEN matches_per_team.competition_id = '2001' AND matches_per_team.match_stage != 'league stage' THEN NULL
             WHEN matches_per_team.team_playing_location = 'away' AND matches_per_team.match_status = 'finished' AND matches_per_team.team_result = 'win' THEN 3
             WHEN matches_per_team.team_playing_location = 'away' AND matches_per_team.match_status = 'finished' AND matches_per_team.team_result = 'draw' THEN 1
             WHEN matches_per_team.team_playing_location = 'away' AND matches_per_team.match_status = 'finished' AND matches_per_team.team_result = 'loss' THEN 0
             ELSE 0
         END AS away_pts,
         CASE
+            WHEN matches_per_team.competition_id = '2001' AND matches_per_team.match_stage != 'league stage' THEN NULL
             WHEN matches_per_team.team_result = 'win' AND matches_per_team.match_status = 'finished' THEN 3
             WHEN matches_per_team.team_result = 'draw' AND matches_per_team.match_status = 'finished' THEN 1
             WHEN matches_per_team.team_result = 'loss' AND matches_per_team.match_status = 'finished' THEN 0
@@ -68,7 +72,8 @@ matches_with_opponent_info AS (
         team_match.team_match_id,
         team_match.match_id,
         opponent_team_match.team_id AS opponent_team_id,
-        opponent_teams.team_name AS opponent_team_name
+        opponent_teams.team_name AS opponent_team_name,
+        opponent_teams.logo_url AS opponent_team_logo_url,
     FROM matches_per_team AS team_match
     LEFT JOIN matches_per_team AS opponent_team_match 
         ON team_match.match_id = opponent_team_match.match_id 
@@ -84,6 +89,7 @@ SELECT
     matches.competition_name,
     matches.team_id,
     matches.team_name,
+    matches.team_logo_url,
     matches.team_playing_location,
     matches.match_at,
     matches.match_month,
@@ -92,6 +98,7 @@ SELECT
     matches.match_stage,
     matches_with_opponent_info.opponent_team_id,
     matches_with_opponent_info.opponent_team_name,
+    matches_with_opponent_info.opponent_team_logo_url,
     CAST(matches.home_pts AS INTEGER) AS home_pts, -- Forced to CAST, otherwise this column is returned as a DECIMAL 
     CAST(matches.away_pts AS INTEGER) AS away_pts,
     CAST(matches.total_pts AS INTEGER) AS total_pts,

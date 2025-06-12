@@ -58,6 +58,10 @@ models:
               to: ref('stg_football_data__teams')
               field: team_id
 
+      - name: team_logo_url
+        description: URL of the team's logo 
+        data_type: VARCHAR
+
       - name: home_pts
         description: Number of points won in home matches
         data_type: HUGEINT

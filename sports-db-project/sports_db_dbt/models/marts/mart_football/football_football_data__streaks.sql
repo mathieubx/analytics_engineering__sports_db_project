@@ -32,6 +32,7 @@ matches AS (
 		matches_per_team.team_result,
 		competitions.competition_name,
 		teams.team_name,
+		teams.logo_url AS team_logo_url,
 	FROM matches_per_team
 	LEFT JOIN competitions USING (competition_id)
 	LEFT JOIN teams USING (team_id)  
@@ -64,6 +65,7 @@ SELECT
 	competition_name,
 	team_id,
 	team_name,
+	team_logo_url,
 	ARRAY_AGG(match_id) AS streak_match_ids,
 	ARRAY_AGG(match_at) AS streak_match_ats,
 	COUNT(match_id) AS streak_number_of_matches,
@@ -79,4 +81,4 @@ SELECT
 		MAX(match_at) + INTERVAL 120 MINUTES 
 	) AS streak_end_at, -- Note that the streak_end_at is inclusive of the last streak match
 FROM streaks_matches
-GROUP BY streak_id, team_id, team_name, competition_id, competition_name
+GROUP BY streak_id, team_id, team_name, team_logo_url, competition_id, competition_name

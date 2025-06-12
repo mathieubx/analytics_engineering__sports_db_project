@@ -10,6 +10,7 @@ models:
         data_tests:
           - unique
           - not_null
+      
       - name: match_id
         description: ID of the match on which the version is based. The version is the state of the team in the competition after a given match.
         data_type: VARCHAR
@@ -18,11 +19,13 @@ models:
           - relationships:
               to: ref('stg_football_data__matches')
               field: match_id
+      
       - name: version_start_at
         description: When the version starts (= At the end of the match)
         data_type: TIMESTAMP
         data_tests:
           - not_null
+      
       - name: version_end_at
         description: When the version ends (= At the end of the next match)
         data_type: TIMESTAMP
@@ -30,6 +33,7 @@ models:
           - not_null_window_function:
               # We want to enable the last version of a team/competition pair to be null since it is the current one.
               qualify: ROW_NUMBER() OVER(PARTITION BY team_id, competition_id ORDER BY version_start_at DESC) != 1 
+      
       - name: team_id
         description: ID of the team
         data_type: VARCHAR
@@ -38,6 +42,7 @@ models:
           - relationships:
               to: ref('stg_football_data__teams')
               field: team_id
+      
       - name: team_name
         description: Name of the team
         data_type: VARCHAR
@@ -46,6 +51,11 @@ models:
           - relationships:
               to: ref('stg_football_data__teams')
               field: team_name
+      
+      - name: team_logo_url
+        description: URL of the team's logo 
+        data_type: VARCHAR
+
       - name: competition_id
         description: ID of the competition
         data_type: VARCHAR
@@ -56,6 +66,7 @@ models:
               field: competition_id
           - accepted_values: 
               values: '{{ var("main_competition_ids") }}'
+      
       - name: competition_name
         description: Name of the competition
         data_type: VARCHAR
@@ -64,6 +75,7 @@ models:
           - relationships:
               to: ref('stg_football_data__competitions')
               field: competition_name
+      
       - name: season_id
         description: ID of the season
         data_type: VARCHAR
@@ -72,6 +84,7 @@ models:
           - relationships:
               to: ref('football_football_data__seasons')
               field: season_id
+      
       - name: season_name
         description: Name of the season
         data_type: VARCHAR

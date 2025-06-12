@@ -38,6 +38,10 @@ models:
               to: ref('stg_football_data__teams')
               field: team_name
       
+      - name: team_logo_url
+        description: URL of the team's logo 
+        data_type: VARCHAR
+      
       - name: competition_id
         description: FK, ID of the team
         data_type: VARCHAR
@@ -115,7 +119,7 @@ models:
           - relationships:
               to: ref('stg_football_data__teams')
               field: team_id
-      
+
       - name: opponent_team_name
         description: Name of the opponent team
         data_type: VARCHAR
@@ -124,12 +128,17 @@ models:
           - relationships:
               to: ref('stg_football_data__teams')
               field: team_name
-
+    
+      - name: opponent_team_logo_url
+        description: URL of the team's logo 
+        data_type: VARCHAR
+    
       - name: home_pts 
         description: Number of points won at home by the team on this match
         data_type: INTEGER
         data_tests: 
-          - not_null
+          - not_null:
+              where: competition_id = '2001' AND match_stage != 'league stage'
           - accepted_values:
               values: [0, 1, 3]
 
@@ -137,7 +146,8 @@ models:
         description: Number of points won away by the team on this match
         data_type: INTEGER
         data_tests: 
-          - not_null
+          - not_null:
+              where: competition_id = '2001' AND match_stage != 'league stage'
           - accepted_values:
               values: [0, 1, 3]
 
@@ -145,7 +155,8 @@ models:
         description: Number of points won by the team on this match
         data_type: INTEGER
         data_tests: 
-          - not_null
+          - not_null:
+              where: competition_id = '2001' AND match_stage != 'league stage'
           - accepted_values:
               values: [0, 1, 3]
 
@@ -179,6 +190,18 @@ models:
             - match_at
       
       # Testing the coherence of pts columns
+      - dbt_utils.expression_is_true:
+          expression: home_pts IS NULL
+          where: competition_id = '2001' AND match_stage != 'league stage'
+
+      - dbt_utils.expression_is_true:
+          expression: away_pts IS NULL
+          where: competition_id = '2001' AND match_stage != 'league stage'
+
+      - dbt_utils.expression_is_true:
+          expression: total_pts IS NULL
+          where: competition_id = '2001' AND match_stage != 'league stage'
+
       - dbt_utils.expression_is_true:
           expression: home_pts = 3
           where: goals_scored > goals_conceded AND team_playing_location = 'home'

@@ -49,6 +49,7 @@ casted_properties AS (
         CAST(deduplicated_teams.area.name AS VARCHAR) AS country_name,
         CAST(deduplicated_teams.address AS VARCHAR) AS team_address,
         CAST(deduplicated_teams.website AS VARCHAR) AS website_url,
+        CAST(deduplicated_teams.crest AS VARCHAR) AS logo_url,
         CASE 
             -- Dealing with missing data (the foundation dates were found on the internet)
             WHEN deduplicated_teams.founded IS NULL AND team_name = 'Sheffield United FC' THEN CAST('1889-01-01' AS DATE)
@@ -86,6 +87,7 @@ SELECT
     country_name,
     team_address,
     website_url,
+    logo_url,
     foundation_year_date,
     team_colors,
     arena_name,

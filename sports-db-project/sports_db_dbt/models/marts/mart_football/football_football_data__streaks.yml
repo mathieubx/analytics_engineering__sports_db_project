@@ -17,6 +17,7 @@ models:
         data_tests:
           - unique
           - not_null
+      
       - name: competition_id
         description: ID of the competition
         data_type: VARCHAR
@@ -25,6 +26,7 @@ models:
           - relationships:
               to: ref('stg_football_data__competitions')
               field: competition_id
+      
       - name: competition_name
         description: Name of the competition
         data_type: VARCHAR
@@ -33,6 +35,7 @@ models:
           - relationships:
               to: ref('stg_football_data__competitions')
               field: competition_name
+      
       - name: team_id
         description: ID of the team
         data_type: VARCHAR
@@ -41,6 +44,7 @@ models:
           - relationships:
               to: ref('stg_football_data__teams')
               field: team_id
+      
       - name: team_name
         description: Name of the team
         data_type: VARCHAR
@@ -49,6 +53,11 @@ models:
           - relationships:
               to: ref('stg_football_data__teams')
               field: team_name
+
+      - name: team_logo_url
+        description: URL of the team's logo 
+        data_type: VARCHAR
+
       - name: streak_match_ids
         description: match_ids of the matches the streak is made of
         data_type: VARCHAR[]
@@ -59,6 +68,7 @@ models:
           - min_array_length:
               array_length: 0
               or_equal: false
+      
       - name: streak_match_ats
         description: When the matches that compose the streak were played (these are the match_at timestamps)
         data_type: TIMESTAMP[]
@@ -66,6 +76,7 @@ models:
           - min_array_length:
               array_length: 0
               or_equal: false
+      
       - name: streak_number_of_matches
         description: Number of matches in streak. Only counts finished matches
         data_type: BIGINT
@@ -75,6 +86,7 @@ models:
               min_value: 1
               max_value: 20
               inclusive: true
+      
       - name: streak_type
         description: Is it a win streak, a loss streak or a draw streak?
         data_type: VARCHAR
@@ -82,6 +94,7 @@ models:
           - not_null
           - accepted_values:
               values: ['win', 'draw', 'loss']
+      
       - name: streak_start_match_id
         description: ID of the first match of the streak
         data_type: VARCHAR
@@ -90,6 +103,7 @@ models:
           - relationships:
               to: ref('stg_football_data__matches')
               field: match_id
+      
       - name: streak_end_match_id
         description: ID of the last match of the streak
         data_type: VARCHAR
@@ -98,11 +112,13 @@ models:
           - relationships:
               to: ref('stg_football_data__matches')
               field: match_id
+      
       - name: streak_start_at
         description: When the first match of the streak started
         data_type: TIMESTAMP
         data_tests:
           - not_null
+      
       - name: streak_end_at
         description: When the last match of the streak ended. NULL if the last match of the streak is also the last match of the team in the competition
         data_type: TIMESTAMP

@@ -110,6 +110,7 @@ SELECT
 	competitions.competition_name,
     current_standings.competition_id,
     teams.team_name,
+	teams.logo_url AS team_logo_url,
     current_standings.team_id,
     current_standings.home_pts,
     current_standings.away_pts,

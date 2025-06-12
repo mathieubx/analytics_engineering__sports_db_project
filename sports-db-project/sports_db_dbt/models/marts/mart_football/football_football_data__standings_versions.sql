@@ -160,6 +160,7 @@ SELECT
 	placement_versions.version_end_at,
 	placement_versions.team_id,
 	teams.team_name,
+	teams.logo_url AS team_logo_url,
 	placement_versions.competition_id,
 	competitions.competition_name,
 	placement_versions.season_id,

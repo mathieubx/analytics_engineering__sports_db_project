@@ -10,18 +10,21 @@ models:
         data_tests:
           - unique
           - not_null
+
       - name: team_name
         description: Name of the team
         data_type: VARCHAR
         data_tests:
           - unique
           - not_null
+
       - name: team_short_name
         description: Shortened version of the team name (often the one that's referred to in real life)
         data_type: VARCHAR
         data_tests:
           - unique
           - not_null
+
       - name: team_code
         description: Team's name abbreviated in 3 letters
         data_type: VARCHAR
@@ -30,6 +33,7 @@ models:
           - dbt_expectations.expect_column_value_lengths_to_be_between:
               min_value: 2
               max_value: 3
+
       - name: country_name
         description: Name of the country hosting the team
         data_type: VARCHAR
@@ -38,27 +42,38 @@ models:
           - relationships:
               to: ref('stg_football_data__areas')
               field: country_name
+
       - name: team_address
         description: Team's headquarters address
         data_type: VARCHAR
         # No data tests for now. Not needed for analytical purposes
+
       - name: website_url
         description: Team's website URL
         data_type: VARCHAR
         # No data tests for now. Not needed for analytical purposes
+
+      - name: logo_url
+        description: Team's logo image URL
+        data_type: VARCHAR
+        # No data tests for now. Not needed for analytical purposes
+
       - name: foundation_year_date
         description: Year of foundation of the club. Set to 1st of January because only the foundation year is provided by the source
         data_type: DATE
         data_tests:
           - not_null
+
       - name: team_colors
         description: Main colors of the team
         data_type: VARCHAR[]
         # No data tests for now. Not needed for analytical purposes
+
       - name: arena_name
         description: Name of the team's arena  
         data_type: VARCHAR
         # No data tests for now. Not needed for analytical purposes
+
       - name: main_competition_id
         description: FK, ID of the teams main competition, as found in the source (football-data API)
         data_type: VARCHAR
@@ -67,30 +82,36 @@ models:
           - relationships:
               to: ref('stg_football_data__competitions')
               field: competition_id
+
       - name: running_competitions_ids
         description: FK, IDs of all competitions currently played by the team (currently = At the time of the given season)
         data_type: VARCHAR[]
+
       - name: player_ids
         description: FK, IDs of all players in the team for a given season
         data_type: VARCHAR[]
+
       - name: coach_id
         description: FK, ID of the coach of the team
         data_type: VARCHAR
         data_tests:
           - not_null:
               where: main_competition_id IN {{ var('main_competition_ids') }} # Ensure we have a coach for each big league's team
+
       - name: coach_contract_start_date
         description: Contract start date of the coach
         data_type: DATE
         data_tests:
           - not_null:
               where: coach_id IS NOT NULL
+
       - name: coach_contract_end_date
         description: Contract end date of the coach
         data_type: DATE
         data_tests:
           - not_null:
               where: coach_id IS NOT NULL
+
       - name: season_id
         description: FK, ID of the season
         data_type: VARCHAR

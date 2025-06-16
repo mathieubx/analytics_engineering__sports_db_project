@@ -110,6 +110,7 @@ models:
           - dbt_utils.expression_is_true:
               expression: '= 1'
               where: version_total_pts = 3
+
       - name: version_number_of_draws
         description: Number of draws for the team in the version 
         data_type: INTEGER
@@ -122,6 +123,7 @@ models:
           - dbt_utils.expression_is_true:
               expression: '= 1'
               where: version_total_pts = 1
+
       - name: version_number_of_losses
         description: Number of draws for the team in the version 
         data_type: INTEGER
@@ -149,6 +151,7 @@ models:
           - dbt_utils.expression_is_true:
               expression: '= 3'
               where: version_number_of_wins = 1 AND version_away_pts = 0
+
       - name: version_away_pts
         description: Number of away points won in the version
         data_type: INTEGER
@@ -161,6 +164,7 @@ models:
           - dbt_utils.expression_is_true:
               expression: '= 3'
               where: version_number_of_wins = 1 AND version_home_pts = 0
+
       - name: version_total_pts
         description: Number of points won in the version
         data_type: INTEGER
@@ -187,6 +191,7 @@ models:
           - dbt_utils.expression_is_true:
               expression: '> version_number_of_goals_conceded'
               where: version_number_of_wins = 1
+
       - name: version_number_of_goals_conceded
         description: Number of goals conceded by the team in this version's match
         data_type: INTEGER
@@ -199,6 +204,7 @@ models:
           - dbt_utils.expression_is_true:
               expression: '> version_number_of_goals_scored'
               where: version_number_of_losses = 1
+
       - name: version_total_number_of_goals_in_match
         description: Number of goals scored by both teams in this version's match of the team
         data_type: INTEGER
@@ -220,6 +226,7 @@ models:
           - dbt_utils.accepted_range:
               min_value: 0
               max_value: '{{ var("max_number_of_matches") }}'
+
       - name: running_number_of_draws
         description: Number of matches that ended up in a draw until this version, in this competition and season
         data_type: BIGINT
@@ -228,6 +235,7 @@ models:
           - dbt_utils.accepted_range:
               min_value: 0
               max_value: '{{ var("max_number_of_matches") }}'
+
       - name: running_number_of_losses
         description: Number of matches lost until this version, in this competition and season
         data_type: BIGINT
@@ -246,6 +254,7 @@ models:
           - dbt_utils.accepted_range:
               min_value: 0
               max_value: '{{ var("max_number_of_pts") }}/2' # Because teams play half of their games at home
+
       - name: running_away_pts
         description: Number of points won away so far
         data_type: HUGEINT
@@ -254,6 +263,7 @@ models:
           - dbt_utils.accepted_range:
               min_value: 0
               max_value: '{{ var("max_number_of_pts") }}/2' # Because teams play half of their games away
+
       - name: running_total_pts
         description: Total number of points won so far
         data_type: HUGEINT
@@ -272,6 +282,7 @@ models:
           - dbt_utils.accepted_range:
               min_value: 0
               max_value: '{{ var("max_number_of_matches") }}*10' # Which would mean the team has scored 10 goals per match whole season long        
+
       - name: running_number_of_goals_conceded
         description: Number of goals conceded by the team so far in the competition
         data_type: HUGEINT
@@ -280,6 +291,7 @@ models:
           - dbt_utils.accepted_range:
               min_value: 0
               max_value: '{{ var("max_number_of_matches") }}*10' # Which would mean the team has conceded 10 goals per match whole season long 
+
       - name: running_total_number_of_goals_in_matches
         description: Total number of goals (scored + conceded) in the team's matches so far in the competition
         data_type: HUGEINT
@@ -289,21 +301,62 @@ models:
               min_value: 0
               max_value: '{{ var("max_number_of_matches") }}*20' # Which would mean the team has conceded 10 goals per match whole season long 
 
+      ## Running number of goals scored, conceded at home, away 
+      - name: running_number_of_goals_scored_at_home
+        description: Number of goals scored by the team at home since the beginning of the season at the time of the version
+        data_type: HUGEINT
+        data_tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              min_value: 0
+              max_value: 190 # Max number of goals ever scored by a team in a season (Barça 2011/2012)
+
+      - name: running_number_of_goals_scored_away
+        description: Number of goals scored by the team away since the beginning of the season at the time of the version
+        data_type: HUGEINT
+        data_tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              min_value: 0
+              max_value: 190 # Max number of goals ever scored by a team in a season (Barça 2011/2012)
+
+      - name: running_number_of_goals_conceded_at_home
+        description: Number of goals conceded by the team at home since the beginning of the season at the time of the version
+        data_type: HUGEINT
+        data_tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              min_value: 0
+              max_value: 190 # Max number of goals ever scored by a team in a season (Barça 2011/2012)
+
+      - name: running_number_of_goals_conceded_away
+        description: Number of goals conceded by the team away since the beginning of the season at the time of the version
+        data_type: HUGEINT
+        data_tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              min_value: 0
+              max_value: 190 # Max number of goals ever scored by a team in a season (Barça 2011/2012)
+
     tests:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns:
             - match_id
             - team_id
+
       - dbt_expectations.expect_column_pair_values_A_to_be_greater_than_B:
           column_A: version_end_at
           column_B: version_start_at
           or_equal: True
+      
       - no_overlapping_periods:
           start_at: version_start_at
           end_at: version_end_at
           id_column: standings_version_id
+      
       - dbt_utils.expression_is_true:
           expression: running_total_pts > 0
           where: running_number_of_wins + running_number_of_draws > 0
+      
       - dbt_utils.expression_is_true:
           expression: running_home_pts + running_away_pts = running_total_pts

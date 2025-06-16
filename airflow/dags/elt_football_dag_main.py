@@ -216,7 +216,7 @@ def extract_football_teams():
 ###################################################################################################
 
 with DAG(
-    'elt_football_dag_main', 
+    #'elt_football_dag_main', 
     start_date = dt(2025, 5, 24) ,
     schedule = '0 0 * * *',
     catchup = False

@@ -150,6 +150,35 @@ placement_versions AS (
 			ORDER BY match_start_at
 			ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW
 		) AS running_total_number_of_goals_in_matches,
+
+		-- Running number of goals scored and conceded at home, and away
+		SUM(
+			IF(team_playing_location = 'home', home_score, 0)
+		) OVER(PARTITION BY team_id, competition_id, season_id
+				ORDER BY match_start_at
+				ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW
+		) AS running_number_of_goals_scored_at_home,
+		
+		SUM(
+			IF(team_playing_location = 'home', away_score, 0)
+		) OVER(PARTITION BY team_id, competition_id, season_id
+				ORDER BY match_start_at
+				ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW
+		) AS running_number_of_goals_conceded_at_home,
+
+		SUM(
+			IF(team_playing_location = 'away', away_score, 0)
+		) OVER(PARTITION BY team_id, competition_id, season_id
+				ORDER BY match_start_at
+				ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW
+		) AS running_number_of_goals_scored_away,
+		
+		SUM(
+			IF(team_playing_location = 'away', home_score, 0)
+		) OVER(PARTITION BY team_id, competition_id, season_id
+				ORDER BY match_start_at
+				ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW
+		) AS running_number_of_goals_conceded_away,
 	FROM matches_per_team_with_matches_info
 )
 
@@ -189,6 +218,11 @@ SELECT
 	placement_versions.running_number_of_goals_scored,
 	placement_versions.running_number_of_goals_conceded,
 	placement_versions.running_total_number_of_goals_in_matches,
+	-- Running number of goals scored and conceded at home, and away
+	placement_versions.running_number_of_goals_scored_at_home,
+	placement_versions.running_number_of_goals_scored_away,
+	placement_versions.running_number_of_goals_conceded_at_home,
+	placement_versions.running_number_of_goals_conceded_away,
 FROM placement_versions
 LEFT JOIN teams USING (team_id)
 LEFT JOIN competitions USING (competition_id)

@@ -67,6 +67,10 @@ models:
               to: ref('stg_football_data__teams')
               field: team_name
 
+      - name: home_team_logo_url
+        description: URL of the team's logo 
+        data_type: VARCHAR
+
       - name: away_team_id
         description: ID of the away team, as found in the source (football-data API)
         data_type: VARCHAR
@@ -84,6 +88,10 @@ models:
           - relationships:
               to: ref('stg_football_data__teams')
               field: team_name
+
+      - name: away_team_logo_url
+        description: URL of the team's logo 
+        data_type: VARCHAR
 
       - name: referees_ids
         description: IDs of the referees, as found in the source (football-data API)

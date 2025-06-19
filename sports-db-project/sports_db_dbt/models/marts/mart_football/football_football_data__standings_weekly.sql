@@ -1,3 +1,5 @@
+-- Versions at the beginning of the week 
+
 WITH 
 
 standings_versions AS (
@@ -68,6 +70,11 @@ SELECT
     standings_versions.running_number_of_goals_scored,
     standings_versions.running_number_of_goals_conceded,
     standings_versions.running_total_number_of_goals_in_matches,
+	-- Running number of goals scored and conceded at home, and away
+	standings_versions.running_number_of_goals_scored_at_home,
+	standings_versions.running_number_of_goals_scored_away,
+	standings_versions.running_number_of_goals_conceded_at_home,
+	standings_versions.running_number_of_goals_conceded_away,
     -- Added columns
     ROW_NUMBER() 
         OVER (

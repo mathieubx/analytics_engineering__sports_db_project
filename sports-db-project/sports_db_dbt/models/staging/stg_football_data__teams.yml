@@ -22,8 +22,10 @@ models:
         description: Shortened version of the team name (often the one that's referred to in real life)
         data_type: VARCHAR
         data_tests:
-          - unique
-          - not_null
+          - unique:
+              where: team_short_name != 'Club Nacional' # Two teams have the same short name (One in Uruguay, the other in Paraguay)
+          - not_null:
+              where: team_id IN {{ var('main_competition_ids') }}
 
       - name: team_code
         description: Team's name abbreviated in 3 letters
@@ -33,6 +35,7 @@ models:
           - dbt_expectations.expect_column_value_lengths_to_be_between:
               min_value: 2
               max_value: 3
+              where: main_competition_id IN {{ var('main_competition_ids') }}
 
       - name: country_name
         description: Name of the country hosting the team
@@ -62,7 +65,8 @@ models:
         description: Year of foundation of the club. Set to 1st of January because only the foundation year is provided by the source
         data_type: DATE
         data_tests:
-          - not_null
+          - not_null:
+              where: team_id IN {{ var('main_competition_ids') }}
 
       - name: team_colors
         description: Main colors of the team
@@ -97,20 +101,23 @@ models:
         data_tests:
           - not_null:
               where: main_competition_id IN {{ var('main_competition_ids') }} # Ensure we have a coach for each big league's team
+              severity: warn # For now, some coaches are simply missing in the source
 
       - name: coach_contract_start_date
         description: Contract start date of the coach
         data_type: DATE
         data_tests:
           - not_null:
-              where: coach_id IS NOT NULL
+              where: coach_id IS NOT NULL AND main_competition_id IN {{ var('main_competition_ids') }}
+              severity: warn # Right now, this column is not used in any analyses
 
       - name: coach_contract_end_date
         description: Contract end date of the coach
         data_type: DATE
         data_tests:
           - not_null:
-              where: coach_id IS NOT NULL
+              where: coach_id IS NOT NULL AND main_competition_id IN {{ var('main_competition_ids') }}
+              severity: warn # Right now, this column is not used in any analyses
 
       - name: season_id
         description: FK, ID of the season

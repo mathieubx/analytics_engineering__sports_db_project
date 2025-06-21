@@ -16,7 +16,7 @@ SELECT
 	competitions.competition_name,
 	IF(
 		competition_id = 2013, -- Brazil league has its seasons over one single year, contrary to european leagues
-		competitions.competition_name || ' ' || seasons.start_date,
+		competitions.competition_name || ' ' || EXTRACT(YEAR FROM seasons.start_date),
 		competitions.competition_name || ' ' || EXTRACT(YEAR FROM seasons.start_date) || ' - ' || EXTRACT(YEAR FROM seasons.end_date)
 	) AS season_name,
 FROM seasons

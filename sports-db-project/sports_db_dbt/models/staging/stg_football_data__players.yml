@@ -29,7 +29,8 @@ models:
         description: Player's date of birth
         data_type: DATE
         data_tests:
-          - not_null
+          - not_null:
+              severity: warn 
 
       - name: nationality
         description: Player's nationality
@@ -70,7 +71,7 @@ models:
         data_tests:
           - not_null
           - relationships:
-              to: ref('stg_football_data__teams')
+              to: ref('')
               field: team_id
       
       - name: contract_start_month

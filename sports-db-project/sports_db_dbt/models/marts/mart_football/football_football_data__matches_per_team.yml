@@ -101,7 +101,7 @@ models:
         data_tests: 
           - not_null
           - accepted_values:
-              values: ['timed', 'finished', 'paused','in play']
+              values: ['timed', 'finished', 'paused', 'in play', 'scheduled', 'awarded', 'postponed']
       
       - name: match_stage
         description: Stage of the match
@@ -109,7 +109,7 @@ models:
         data_tests: 
           - not_null
           - accepted_values:
-              values: ['regular season', 'league stage']
+              values: ['regular season', 'league stage', 'round 2', 'round 1', 'round 3', 'group stage', 'semi finals', 'playoffs', 'quarter finals', 'last 16', 'final']
 
       - name: opponent_team_id
         description: ID of the opponent team

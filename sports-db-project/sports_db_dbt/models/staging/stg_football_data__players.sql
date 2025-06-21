@@ -18,7 +18,17 @@ SELECT
 		WHEN id = 191811 THEN {{ var('default_birth_date') }} -- Unknown so we set a default date
 		ELSE CAST(dateOfBirth AS DATE) 
 	END AS date_of_birth,
-	CAST(nationality AS VARCHAR) AS nationality,
+	CASE
+		-- Attributing missing nationalities
+		WHEN id = 192652 THEN 'Brazil'
+		-- Renaming nationalities
+		WHEN nationality = 'UA Emirates' THEN 'United Arab Emirates'
+		WHEN nationality = 'DR Congo' THEN 'Congo DR'
+		WHEN nationality = 'Ivory Coast' THEN 'Côte d’Ivoire'
+		WHEN nationality = 'São Tomé and Príncipe' THEN 'São Tomé e Príncipe'
+		WHEN nationality = 'USA' THEN 'United States'
+		ELSE CAST(nationality AS VARCHAR)
+	END AS nationality,
 	CAST(section AS VARCHAR) AS section,
 	CAST(position AS VARCHAR) AS position,
 	CAST(shirtNumber AS INTEGER) AS player_number,

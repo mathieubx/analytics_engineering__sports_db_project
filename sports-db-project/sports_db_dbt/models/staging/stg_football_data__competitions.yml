@@ -47,4 +47,4 @@ models:
           - relationships:
               to: ref('stg_football_data__seasons')
               field: season_id
-          # - relationships to seasons to add
+              where: competition_id != '2000' # We don't look at FIFA Wolrd Cup for now

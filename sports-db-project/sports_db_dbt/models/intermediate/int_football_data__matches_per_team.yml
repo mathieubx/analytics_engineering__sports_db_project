@@ -65,14 +65,34 @@ models:
         data_tests: 
           - not_null
           - accepted_values:
-              values: ['timed', 'finished', 'paused','in play']
+              values: [
+                'timed',
+                'finished',
+                'paused',
+                'in play',
+                'awarded',
+                'scheduled',
+                'postponed'
+              ]
       - name: match_stage
         description: Stage of the match. Cannot be a tournament stage since we only keep regular season and league stage phases
         data_type: VARCHAR
         data_tests: 
           - not_null
           - accepted_values:
-              values: ['regular season', 'league stage']
+              values: [
+                'regular season',
+                'league stage',
+                'playoffs',
+                'group stage', 
+                'round 1',
+                'round 2',
+                'round 3',
+                'last 16',
+                'semi finals',
+                'quarter finals',
+                'final'
+              ]
 
     tests:
       - dbt_utils.expression_is_true:
